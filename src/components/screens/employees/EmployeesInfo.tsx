@@ -55,7 +55,7 @@ const EmployeesInfo = () => {
           <LeftWrap>
             {
               infoLeftTitles.map((title, index: number) => {
-                const value = Object.values(leftData[id])[index];
+                const value: any = Object.values(leftData[id])[index];
                 return (
                   <Info key={index}>
                     <InfoTitle>{title}</InfoTitle>
@@ -67,7 +67,7 @@ const EmployeesInfo = () => {
           <RightWrap>
             {
               infoRightTitles.map((title, index: number) => {
-                const value = Object.values(rightData[id])[index];
+                const value: any = Object.values(rightData[id])[index];
                 return (
                   <Info key={index}>
                     <InfoTitle>{title}</InfoTitle>
