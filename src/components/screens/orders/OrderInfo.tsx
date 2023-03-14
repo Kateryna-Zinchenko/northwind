@@ -25,14 +25,21 @@ const OrderInfo = () => {
   ];
 
   const leftData = customers.map((obj) => {
-    const array = ['customerID', 'region', 'postalCode', 'country', 'phone', 'fax'];
+    const array = ['customerID', 'region', 'postalCode'];
     const object = {...obj};
     const data = deleteKeys(object, array);
     return data;
   });
 
   const rightData = customers.map((obj) => {
-    const array = ['customerID', 'companyName', 'contactName', 'contactTitle', 'address', 'city'];
+    const array: string[] = [];
+    const object = {...obj};
+    const data = deleteKeys(object, array);
+    return data;
+  });
+
+  const tableData = customers.map((obj) => {
+    const array: string[] = ['fax', 'phone', 'country', 'region', 'postalCode', 'city'];
     const object = {...obj};
     const data = deleteKeys(object, array);
     return data;
@@ -41,8 +48,14 @@ const OrderInfo = () => {
   const id: number = Number(useParams().id) - 1;
 
   const onButtonClick = () => {
-    nav(Path.Employees)
+    nav(Path.Orders)
   }
+
+  const goTo = (id: string, index: number) => {
+    if (index === 0) {
+      nav(`${Path.Products}/${id}`);
+    }
+  };
 
   return (
     <Wrapper>
@@ -77,6 +90,39 @@ const OrderInfo = () => {
               })}
           </RightWrap>
         </InfoWrap>
+        <Table>
+          <Header2>
+            <Title2>Products in Order</Title2>
+          </Header2>
+          <TableComponent>
+            <THead>
+              <TR>
+                <TH>Product</TH>
+                <TH>Quantity</TH>
+                <TH>Order Price</TH>
+                <TH>Total Price</TH>
+                <TH>Discount</TH>
+              </TR>
+            </THead>
+            <TBody>
+              {tableData && tableData.map((obj: typeof customers[0], index: number) => {
+                return (
+                  <TR key={index}>
+                    {Object.values(obj).map((value, valIndex) => (
+                      <TD
+                        key={valIndex}
+                        isColored={valIndex === 0}
+                        onClick={() => goTo(`${index + 1}`, valIndex)}
+                      >
+                        {value}
+                      </TD>
+                    ))}
+                  </TR>
+                )
+              })}
+            </TBody>
+          </TableComponent>
+        </Table>
         <ButtonWrapper>
           <Button onClick={onButtonClick}>Go back</Button>
         </ButtonWrapper>
@@ -101,6 +147,13 @@ const Header = styled.div`
   border-bottom: 1px solid rgb(243 244 246);
   display: flex;
   align-items: center;
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+`;
+
+const Header2 = styled(Header)`
+  height: 48px;
+  line-height: 1.5%;
 `;
 
 const Title = styled.div`
@@ -109,12 +162,15 @@ const Title = styled.div`
   margin: 0 0 0 8px;
 `;
 
+const Title2 = styled(Title)`
+  margin: 1px 0 0;
+`;
+
 const InfoWrap = styled.div`
   padding: 24px;
   display: grid;
   grid-template-columns: repeat(2,minmax(0,1fr));
   gap: 1rem;
-  border-bottom: 1px solid #e5e7eb;
 `;
 
 const LeftWrap = styled.div`
@@ -158,6 +214,49 @@ const Button = styled.button`
   &:hover {
     background-color: rgb(220 38 38);
   }
+`;
+
+const TableComponent = styled.table`
+  width: 100%;
+  background-color: #fff;
+  border-spacing: 0;
+  margin: 1px 0 0;
+`;
+
+const THead = styled.thead`
+  & > tr:nth-child(odd) {
+    background-color: #fff;
+  }
+  & > tr:nth-child(odd):hover {
+    background-color: #fff;
+  }
+`;
+
+const TR = styled.tr`
+  &:hover {
+    background-color: rgb(243 244 246);
+  }
+  &:nth-child(odd){
+    background-color: rgb(249 250 251)
+  }
+  &:nth-child(odd):hover{
+    background-color: rgb(243 244 246);
+  }
+`;
+
+const TH = styled.th`
+  padding: 8px 12px;
+  text-align: left;
+  height: 40px;
+`;
+
+const TBody = styled.tbody``;
+
+const TD = styled.td<{ isColored: boolean }>`
+  padding: 8px 12px;
+  height: 40px;
+  color: ${({isColored}) => isColored && 'rgb(37 99 235)'};
+  cursor: ${({isColored}) => isColored && 'pointer'};
 `;
 
 export default OrderInfo;

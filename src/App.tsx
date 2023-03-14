@@ -27,9 +27,8 @@ export enum Path {
 }
 
 const App: React.FC = () => (
-  <>
+  <Wrapper>
     <BrowserRouter>
-      <Wrapper>
         <LeftWrapper>
           <Container />
         </LeftWrapper>
@@ -49,17 +48,20 @@ const App: React.FC = () => (
             <Route path={`${Path.Employees}/:id`} element={<EmployeesInfo />} />
           </Routes>
         </RightWrapper>
-      </Wrapper>
     </BrowserRouter>
-  </>
+  </Wrapper>
 );
 
 const Wrapper = styled.div`
   display: flex;
+  min-height: 100vh;
+  height: 100%;
+  background-color: rgb(31 41 55);
 `;
 
 const LeftWrapper = styled.div`
-  
+  min-height: 100vh;
+  height: 100%;
 `;
 
 const RightWrapper = styled.div`

@@ -75,7 +75,7 @@ const Wrapper = styled.div`
 
 const NavBar = styled.nav`
   width: 240px;
-  height: calc(100vh);
+  height: calc(100%);
   background-color: rgb(31 41 55);
 `;
 
