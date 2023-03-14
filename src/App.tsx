@@ -10,6 +10,10 @@ import SupplierInfo from './components/screens/suppliers/SupplierInfo';
 import CustomersInfo from './components/screens/customers/CustomersInfo';
 import Employees from './components/screens/employees/Employees';
 import EmployeesInfo from './components/screens/employees/EmployeesInfo';
+import Products from './components/screens/products/Products';
+import ProductsInfo from './components/screens/products/ProductsInfo';
+import Orders from './components/screens/orders/Orders';
+import OrderInfo from './components/screens/orders/OrderInfo';
 
 export enum Path {
   Home = '/',
@@ -35,6 +39,10 @@ const App: React.FC = () => (
             <Route path={Path.Home} element={<Home />} />
             <Route path={Path.Suppliers} element={<Suppliers />} />
             <Route path={`${Path.Suppliers}/:id`} element={<SupplierInfo />} />
+            <Route path={Path.Products} element={<Products />} />
+            <Route path={`${Path.Products}/:id`} element={<ProductsInfo />} />
+            <Route path={Path.Orders} element={<Orders />} />
+            <Route path={`${Path.Orders}/:id`} element={<OrderInfo />} />
             <Route path={Path.Customers} element={<Customers />} />
             <Route path={`${Path.Customers}/:id`} element={<CustomersInfo />} />
             <Route path={Path.Employees} element={<Employees />} />

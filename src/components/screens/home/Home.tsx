@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import Logo from '../../../../public/logo';
 
 const Home: React.FC = () => {
   return (

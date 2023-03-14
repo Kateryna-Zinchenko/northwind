@@ -5,11 +5,11 @@ import { deleteKeys } from '../../../utils/deleteKeys';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Path } from '../../../App';
 
-const EmployeesInfo = () => {
+const OrderInfo = () => {
   const nav = useNavigate();
 
-  const infoLeftTitles = ['Name', 'Title', 'Title Of Courtesy', 'Birth Date', 'Hire Date', 'Address', 'City'];
-  const infoRightTitles = ['Postal Code', 'Country', 'Home Phone', 'Extension', 'Notes', 'Reports To'];
+  const infoLeftTitles = ['Customer Id', 'Ship Name', 'Total Products', 'Total Quantity', 'Total Price', 'Total Discount', 'Ship Via', 'Freight'];
+  const infoRightTitles = ['Order Date', 'Required Date', 'Shipped Date', 'Ship City', 'Ship Region', 'Ship Postal Code', 'Ship Country'];
 
   const customers = [
     {
@@ -49,7 +49,7 @@ const EmployeesInfo = () => {
       <Table>
         <Header>
           <BallotIcon />
-          <Title>Employee information</Title>
+          <Title>Order information</Title>
         </Header>
         <InfoWrap>
           <LeftWrap>
@@ -160,4 +160,4 @@ const Button = styled.button`
   }
 `;
 
-export default EmployeesInfo;
+export default OrderInfo;
