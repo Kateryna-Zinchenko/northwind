@@ -14,6 +14,7 @@ import Products from './components/screens/products/Products';
 import ProductsInfo from './components/screens/products/ProductsInfo';
 import Orders from './components/screens/orders/Orders';
 import OrderInfo from './components/screens/orders/OrderInfo';
+import Search from './components/screens/search/Search';
 
 export enum Path {
   Home = '/',
@@ -42,10 +43,12 @@ const App: React.FC = () => (
             <Route path={`${Path.Products}/:id`} element={<ProductsInfo />} />
             <Route path={Path.Orders} element={<Orders />} />
             <Route path={`${Path.Orders}/:id`} element={<OrderInfo />} />
-            <Route path={Path.Customers} element={<Customers />} />
-            <Route path={`${Path.Customers}/:id`} element={<CustomersInfo />} />
             <Route path={Path.Employees} element={<Employees />} />
             <Route path={`${Path.Employees}/:id`} element={<EmployeesInfo />} />
+            <Route path={Path.Customers} element={<Customers />} />
+            <Route path={`${Path.Customers}/:id`} element={<CustomersInfo />} />
+            <Route path={Path.Search} element={<Search />} />
+            <Route path={`${Path.Search}/:id`} element={<CustomersInfo />} />
           </Routes>
         </RightWrapper>
     </BrowserRouter>
