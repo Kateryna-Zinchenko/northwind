@@ -8,29 +8,6 @@ import { getOrders } from '../../../store/actions/user';
 import { useDispatch, useSelector } from 'react-redux';
 import { date, price } from '../../../utils/deleteKeys';
 
-(function() {
-  function decimalAdjust(type, value, exp) {
-    if (typeof exp === 'undefined' || +exp === 0) {
-      return Math[type](value);
-    }
-    value = +value;
-    exp = +exp;
-    if (isNaN(value) || !(typeof exp === 'number' && exp % 1 === 0)) {
-      return NaN;
-    }
-    value = value.toString().split('e');
-    value = Math[type](+(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp)));
-    value = value.toString().split('e');
-    return +(value[0] + 'e' + (value[1] ? (+value[1] + exp) : exp));
-  }
-
-  if (!Math.round10) {
-    Math.round10 = function(value, exp) {
-      return decimalAdjust('round', value, exp);
-    };
-  }
-})();
-
 const Orders = () => {
   const nav = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
@@ -44,7 +21,7 @@ const Orders = () => {
   const tableData = orders?.map((obj) => {
     return {
       order_id: obj.order_id,
-      total_products_price: price(`${Math.round10(obj.total_products_price, -1)}`),
+      total_products_price: price(`${Math.round(obj.total_products_price*100)/100}`),
       total_products: obj.total_products,
       total_products_items: obj.total_products_items,
       shipped_date: date(obj.shipped_date),
