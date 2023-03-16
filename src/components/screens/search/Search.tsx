@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import SearchIcon from '@mui/icons-material/Search';
-import SearchInfo from './SearchInfo';
+import { AppDispatch } from '../../../App';
+import { useDispatch, useSelector } from 'react-redux';
+import { getSearchCust, getSearchProd } from '../../../store/actions/user';
+import { selectSearchCustomers, selectSearchProducts } from '../../../store/selectors/user';
 
 enum SearchGroup {
   Products = 'products',
@@ -10,10 +13,33 @@ enum SearchGroup {
 
 const Search = () => {
   const [value, setValue] = useState(SearchGroup.Products);
+  const [inputValue, setInputValue] = useState('');
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  const customers = useSelector(selectSearchCustomers);
+  const products = useSelector(selectSearchProducts);
+
+  useEffect(() => {
+    dispatch(getSearchCust(value))
+    dispatch(getSearchProd(value))
+  },[])
 
   const onRadioButClick = (e: any) => {
     setValue(e.target.value);
   }
+
+  const onInputChange = (e: any) => {
+    setInputValue(e.target.value);
+  }
+
+  // const onEnterClick = (e: any) => {
+  //   if (e.key === 'Enter') {
+  //
+  //   }
+  // }
+
+  console.log(customers, products);
 
   return (
     <MainWrapper>
@@ -23,7 +49,12 @@ const Search = () => {
           <Icon>
             <SearchIcon />
           </Icon>
-          <Input placeholder='Enter keyword...' />
+          <Input
+            placeholder='Enter keyword...'
+            value={inputValue}
+            onChange={onInputChange}
+            // onKeyDown={onEnterClick}
+          />
         </InputWrapper>
         <Title>Tables</Title>
         <Buttons>
@@ -45,7 +76,7 @@ const Search = () => {
           </Item>
         </Buttons>
         <H1>Search results</H1>
-        <SearchInfo />
+        <Results>No results</Results>
       </Wrapper>
     </MainWrapper>
   );
@@ -147,6 +178,11 @@ const H1 = styled.div`
   line-height: 1.75rem;
   font-weight: 700;
   margin: 16px 0 0;
+`;
+
+const Results = styled.div`
+  margin: 24px 0 0;
+  line-height: 1.5rem;
 `;
 
 export default Search;

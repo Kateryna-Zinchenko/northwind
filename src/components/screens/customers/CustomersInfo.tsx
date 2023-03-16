@@ -1,44 +1,45 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import BallotIcon from '@mui/icons-material/Ballot';
-import { deleteKeys } from '../../../utils/deleteKeys';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Path } from '../../../App';
+import { AppDispatch, Path } from '../../../App';
+import { selectCustomer } from '../../../store/selectors/user';
+import { getCustomerInfo } from '../../../store/actions/user';
+import { useDispatch, useSelector } from 'react-redux';
 
 const CustomersInfo = () => {
   const nav = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+  const customer = useSelector(selectCustomer);
+
+  const id = useParams().id;
+
+  useEffect(() => {
+    dispatch(getCustomerInfo(id!));
+  }, [])
 
   const infoLeftTitles = ['Company Name', 'Contact Name', 'Contact Title', 'Address', 'City'];
   const infoRightTitles = ['Postal Code', 'Region', 'Country', 'Phone', 'Fax'];
 
-  const customers = [
-    {
-      customerID: 'ALFKI', companyName: 'Alfreds Futterkiste', contactName: 'Maria Anders',
-      contactTitle: 'Sales Representative', address: 'Obere Str. 57', city: 'Berlin', postalCode: '12209',
-      region: '-', country: 'Germany', phone: '030-0074321', fax: '030-0076545',
-    },
-    {
-      customerID: 'ANATR', companyName: 'Ana Trujillo Emparedados y helados', contactName: 'Ana Trujillo',
-      contactTitle: 'Owner', address: 'Avda. de la Constitución 2222', city: 'México D.F.',
-      postalCode: '05021', region: '-', country: 'Mexico', phone: '(5) 555-4729', fax: '(5) 555-3745',
-    },
-  ];
+  const leftData = () => {
+    return {
+      company_name: customer?.company_name,
+      contact_name: customer?.contact_name,
+      contact_title: customer?.contact_title,
+      address: customer?.address,
+      city: customer?.city,
+    }
+  };
 
-  const leftData = customers.map((obj) => {
-    const array = ['customerID', 'region', 'postalCode', 'country', 'phone', 'fax'];
-    const object = {...obj};
-    const data = deleteKeys(object, array);
-    return data;
-  });
-
-  const rightData = customers.map((obj) => {
-    const array = ['customerID', 'companyName', 'contactName', 'contactTitle', 'address', 'city'];
-    const object = {...obj};
-    const data = deleteKeys(object, array);
-    return data;
-  });
-
-  const id: number = Number(useParams().id) - 1;
+  const rightData = () => {
+    return {
+      postal_code: customer?.postal_code,
+      region: customer?.region,
+      country: customer?.country,
+      phone: customer?.phone,
+      fax: customer?.fax,
+    }
+  };
 
   const onButtonClick = () => {
     nav(Path.Customers)
@@ -55,7 +56,7 @@ const CustomersInfo = () => {
           <LeftWrap>
             {
               infoLeftTitles.map((title, index: number) => {
-                const value: any = Object.values(leftData[id])[index];
+                const value: any = Object.values(leftData())[index];
                 return (
                   <Info key={index}>
                     <InfoTitle>{title}</InfoTitle>
@@ -67,7 +68,10 @@ const CustomersInfo = () => {
           <RightWrap>
             {
               infoRightTitles.map((title, index: number) => {
-                const value: any = Object.values(rightData[id])[index];
+                const value: any = Object.values(rightData())[index];
+                if (value === null || value === ' ') {
+                  title = ''
+                }
                 return (
                   <Info key={index}>
                     <InfoTitle>{title}</InfoTitle>

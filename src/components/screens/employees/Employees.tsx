@@ -1,32 +1,32 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import RedoIcon from '@mui/icons-material/Redo';
-import { deleteKeys } from '../../../utils/deleteKeys';
 import Avatar from '../../shared/Avatar';
 import { useNavigate } from 'react-router-dom';
-import { Path } from '../../../App';
+import { AppDispatch, Path } from '../../../App';
+import { getEmployees } from '../../../store/actions/user';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectEmployees } from '../../../store/selectors/user';
 
 const Employees = () => {
-  const employees = [
-    {
-      supplierID: '1', companyName: 'Exotic Liquids', contactName: 'Charlotte Cooper',
-      contactTitle: 'Purchasing Manager', address: '49 Gilbert St.', city: 'London', region: '',
-      postalCode: 'EC1 4SD', country: 'UK', phone: '(171) 555-2222', fax: '', homePage: '',
-    },
-    {
-      supplierID: '2', companyName: 'New Orleans Cajun Delights', contactName: 'Shelley Burke',
-      contactTitle: 'Order Administrator', address: 'P.O. Box 78934', city: 'New Orleans', region: 'LA',
-      postalCode: '70117', country: 'USA', phone: '(100) 555-4822', fax: '', homePage: '#CAJUN.HTM#',
-    },
-  ];
-
-  const tableData = employees.map((obj) => {
-    const array = ['supplierID', 'address', 'region', 'postalCode', 'phone', 'fax', 'homePage'];
-    const data = deleteKeys(obj, array);
-    return data;
-  });
-
   const nav = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+
+  const employees = useSelector(selectEmployees);
+
+  useEffect(() => {
+    dispatch(getEmployees());
+  }, [])
+
+  const tableData = employees?.map((obj) => {
+    return {
+      full_name: obj.full_name,
+      title: obj.title,
+      city: obj.city,
+      home_phone: obj.home_phone,
+      country: obj.country
+    };
+  });
 
   const goTo = (id: string, index: number) => {
     if (index === 0) {
@@ -36,7 +36,7 @@ const Employees = () => {
 
   const randomColor = Math.floor(Math.random()*16777215).toString(16);
 
-  console.log(randomColor);
+  console.log(employees);
   return (
     <Wrapper className='suppliers'>
       <Table>
@@ -53,12 +53,13 @@ const Employees = () => {
               <TH>City</TH>
               <TH>Phone</TH>
               <TH>Country</TH>
+              <TH></TH>
             </TR>
           </THead>
           <TBody>
-            {tableData && tableData.map((obj: typeof employees[0], index: number) => {
-              const firstLetter = obj.contactName.split(' ')[0][0]
-              const secondLetter = obj.contactName.split(' ')[1][0]
+            {tableData && tableData.map((obj, index: number) => {
+              const firstLetter = obj.full_name.split(' ')[0][0]
+              const secondLetter = obj.full_name.split(' ')[1][0]
               return (
                 <TR key={index}>
                   <TDAvatar>
@@ -108,7 +109,6 @@ const Title = styled.div`
 const TableComponent = styled.table`
   width: 100%;
   background-color: #fff;
-  padding: 0 24px 0 0;
   border-spacing: 0;
 `;
 

@@ -1,48 +1,53 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import BallotIcon from '@mui/icons-material/Ballot';
-import { deleteKeys } from '../../../utils/deleteKeys';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Path } from '../../../App';
+import { AppDispatch, Path } from '../../../App';
+import { selectProduct } from '../../../store/selectors/user';
+import { useDispatch, useSelector } from 'react-redux';
+import { getProductInfo } from '../../../store/actions/user';
 
 const ProductInfo = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const nav = useNavigate();
+  const product = useSelector(selectProduct);
+
+  const id = Number(useParams().id);
+
+  useEffect(() => {
+    dispatch(getProductInfo(id));
+  }, [])
 
   const infoLeftTitles = ['Product Name', 'Supplier', 'Quantity Per Unit', 'Unit Price'];
   const infoRightTitles = ['Units In Stock', 'Units In Order', 'Reorder Level', 'Discontinued'];
 
-  const customers = [
-    {
-      customerID: 'ALFKI', companyName: 'Alfreds Futterkiste', contactName: 'Maria Anders',
-      contactTitle: 'Sales Representative', address: 'Obere Str. 57', city: 'Berlin', postalCode: '12209',
-      region: '-', country: 'Germany', phone: '030-0074321', fax: '030-0076545',
-    },
-    {
-      customerID: 'ANATR', companyName: 'Ana Trujillo Emparedados y helados', contactName: 'Ana Trujillo',
-      contactTitle: 'Owner', address: 'Avda. de la Constitución 2222', city: 'México D.F.',
-      postalCode: '05021', region: '-', country: 'Mexico', phone: '(5) 555-4729', fax: '(5) 555-3745',
-    },
-  ];
+  const leftData = () => {
+    return {
+      product_name: product?.product_name,
+      supplier: product?.supplier_name,
+      quantity_per_unit: product?.quantity_per_unit,
+      unit_price: `$${product?.unit_price}`
+    };
+  };
 
-  const leftData = customers.map((obj) => {
-    const array = ['customerID', 'region', 'postalCode', 'country', 'phone', 'fax'];
-    const object = {...obj};
-    const data = deleteKeys(object, array);
-    return data;
-  });
-
-  const rightData = customers.map((obj) => {
-    const array = ['customerID', 'companyName', 'contactName', 'contactTitle', 'address', 'city'];
-    const object = {...obj};
-    const data = deleteKeys(object, array);
-    return data;
-  });
-
-  const id: number = Number(useParams().id) - 1;
+  const rightData = () => {
+    return {
+      units_in_stock: product?.units_in_stock,
+      units_on_order: product?.units_on_order,
+      reorder_level: product?.reorder_level,
+      discontinued: product?.discontinued
+    };
+  };
 
   const onButtonClick = () => {
     nav(Path.Products)
   }
+
+  const goTo = (index: number) => {
+    if (index === 1) {
+      nav(`${Path.Suppliers}/${product?.supplier_id}`);
+    }
+  };
 
   return (
     <Wrapper>
@@ -55,11 +60,16 @@ const ProductInfo = () => {
           <LeftWrap>
             {
               infoLeftTitles.map((title, index: number) => {
-                const value: any = Object.values(leftData[id])[index];
+                const value: any = Object.values(leftData())[index];
                 return (
                   <Info key={index}>
                     <InfoTitle>{title}</InfoTitle>
-                    <InfoValue>{value}</InfoValue>
+                    <InfoValue
+                      isColored={index === 1}
+                      onClick={() => goTo(index)}
+                    >
+                      {value}
+                    </InfoValue>
                   </Info>
                 )
               })}
@@ -67,7 +77,10 @@ const ProductInfo = () => {
           <RightWrap>
             {
               infoRightTitles.map((title, index: number) => {
-                const value: any = Object.values(rightData[id])[index];
+                const value: any = Object.values(rightData())[index];
+                if (value == null) {
+                  title = ''
+                }
                 return (
                   <Info key={index}>
                     <InfoTitle>{title}</InfoTitle>
@@ -134,8 +147,10 @@ const InfoTitle = styled.div`
   margin: 0 0 8px;
 `;
 
-const InfoValue = styled.div`
+const InfoValue = styled.div<{ isColored?: boolean }>`
   line-height: 1.5rem;
+  color: ${({isColored}) => isColored && 'rgb(37 99 235)'};
+  cursor: ${({isColored}) => isColored && 'pointer'};
 `;
 
 const RightWrap = styled.div`

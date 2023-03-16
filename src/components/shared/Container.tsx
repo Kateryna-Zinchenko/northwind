@@ -71,12 +71,14 @@ const Container: React.FC = () => {
 };
 
 const Wrapper = styled.div`
+  overflow: hidden;
 `;
 
 const NavBar = styled.nav`
   width: 240px;
   height: calc(100%);
   background-color: rgb(31 41 55);
+  overflow: hidden;
 `;
 
 const Logo = styled.div`

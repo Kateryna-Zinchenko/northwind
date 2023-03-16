@@ -1,33 +1,64 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import RedoIcon from '@mui/icons-material/Redo';
-import { deleteKeys } from '../../../utils/deleteKeys';
-import { Path } from '../../../App';
+import { AppDispatch, Path } from '../../../App';
 import { useNavigate } from 'react-router-dom';
+import { selectOrders } from '../../../store/selectors/user';
+import { getOrders } from '../../../store/actions/user';
+import { useDispatch, useSelector } from 'react-redux';
+import { date, price } from '../../../utils/deleteKeys';
+
+(function() {
+  function decimalAdjust(type, value, exp) {
+    if (typeof exp === 'undefined' || +exp === 0) {
+      return Math[type](value);
+    }
+    value = +value;
+    exp = +exp;
+    if (isNaN(value) || !(typeof exp === 'number' && exp % 1 === 0)) {
+      return NaN;
+    }
+    value = value.toString().split('e');
+    value = Math[type](+(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp)));
+    value = value.toString().split('e');
+    return +(value[0] + 'e' + (value[1] ? (+value[1] + exp) : exp));
+  }
+
+  if (!Math.round10) {
+    Math.round10 = function(value, exp) {
+      return decimalAdjust('round', value, exp);
+    };
+  }
+})();
 
 const Orders = () => {
-  const customers = [
-    {
-      customerID: 'ALFKI', companyName: 'Alfreds Futterkiste', contactName: 'Maria Anders',
-      contactTitle: 'Sales Representative', address: 'Obere Str. 57', city: 'Berlin', region: '',
-      postalCode: '12209', country: 'Germany', phone: '030-0074321', fax: '030-0076545',
-    },
-    {
-      customerID: 'ANATR', companyName: 'Ana Trujillo Emparedados y helados', contactName: 'Ana Trujillo',
-      contactTitle: 'Owner', address: 'Avda. de la Constitución 2222', city: 'México D.F.', region: '',
-      postalCode: '05021', country: 'Mexico', phone: '(5) 555-4729', fax: '(5) 555-3745',
-    },
-  ];
+  const nav = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
 
-  const tableData = customers.map((obj) => {
-    const array = ['address', 'region', 'phone', 'homePage'];
-    const data = deleteKeys(obj, array);
-    return data;
+  const orders = useSelector(selectOrders);
+
+  useEffect(() => {
+    dispatch(getOrders());
+  }, [])
+
+  const tableData = orders?.map((obj) => {
+    return {
+      order_id: obj.order_id,
+      total_products_price: price(`${Math.round10(obj.total_products_price, -1)}`),
+      total_products: obj.total_products,
+      total_products_items: obj.total_products_items,
+      shipped_date: date(obj.shipped_date),
+      ship_name: obj.ship_name,
+      ship_city: obj.ship_city,
+      ship_country: obj.ship_country
+    }
   });
 
-  const nav = useNavigate();
+  const id = orders?.map((obj) => {
+    return obj.order_id
+  });
 
-  const goTo = (id: string, index: number) => {
+  const goTo = (id: number, index: number) => {
     if (index === 0) {
       nav(`${Path.Orders}/${id}`);
     }
@@ -51,17 +82,18 @@ const Orders = () => {
               <TH>Ship Name</TH>
               <TH>City</TH>
               <TH>Country</TH>
+              <TH></TH>
             </TR>
           </THead>
           <TBody>
-            {tableData && tableData.map((obj: typeof customers[0], index: number) => {
+            {tableData && tableData.map((obj, index: number) => {
               return (
                 <TR key={index}>
                   {Object.values(obj).map((value, valIndex) => (
                     <TD
                       key={valIndex}
                       isColored={valIndex === 0}
-                      onClick={() => goTo(`${index + 1}`, valIndex)}
+                      onClick={() => goTo(id![index], valIndex)}
                     >
                       {value}
                     </TD>
@@ -102,7 +134,6 @@ const Title = styled.div`
 const TableComponent = styled.table`
   width: 100%;
   background-color: #fff;
-  padding: 0 28px 0 0;
   border-spacing: 0;
 `;
 
@@ -140,6 +171,7 @@ const TD = styled.td<{ isColored: boolean }>`
   height: 40px;
   color: ${({isColored}) => isColored && 'rgb(37 99 235)'};
   cursor: ${({isColored}) => isColored && 'pointer'};
+  user-select: text;
 `;
 
 export default Orders;

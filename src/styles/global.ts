@@ -14,7 +14,6 @@ export const GlobalStyle = createGlobalStyle`
     BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,
     sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;
     font-size: 16px;
-    //line-height: 1.5rem;
   }
   html, body, #root{
     display: flex;

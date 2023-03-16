@@ -1,32 +1,39 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import RedoIcon from '@mui/icons-material/Redo';
-import { deleteKeys } from '../../../utils/deleteKeys';
 import Avatar from '../../shared/Avatar';
-import { Path } from '../../../App';
+import { AppDispatch, Path } from '../../../App';
 import { useNavigate } from 'react-router-dom';
+import { selectCustomers } from '../../../store/selectors/user';
+import { getCustomers } from '../../../store/actions/user';
+import { useDispatch, useSelector } from 'react-redux';
+import { ICustomer } from '../../../store/reducers/common';
 
 const Customers = () => {
-  const customers = [
-    {
-      customerID: 'ALFKI', companyName: 'Alfreds Futterkiste', contactName: 'Maria Anders',
-      contactTitle: 'Sales Representative', address: 'Obere Str. 57', city: 'Berlin', region: '',
-      postalCode: '12209', country: 'Germany', phone: '030-0074321', fax: '030-0076545',
-    },
-    {
-      customerID: 'ANATR', companyName: 'Ana Trujillo Emparedados y helados', contactName: 'Ana Trujillo',
-      contactTitle: 'Owner', address: 'Avda. de la Constitución 2222', city: 'México D.F.', region: '',
-      postalCode: '05021', country: 'Mexico', phone: '(5) 555-4729', fax: '(5) 555-3745',
-    },
-  ];
+  const nav = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
 
-  const tableData = customers.map((obj) => {
-    const array = ['customerID', 'address', 'region', 'postalCode', 'phone', 'fax', 'homePage'];
-    const data = deleteKeys(obj, array);
-    return data;
+  const customers = useSelector(selectCustomers);
+
+  useEffect(() => {
+    dispatch(getCustomers());
+  }, [])
+
+  const tableData = customers?.map((obj: ICustomer) => {
+    return {
+      company_name: obj.company_name,
+      contact_name: obj.contact_name,
+      contact_title: obj.contact_title,
+      city: obj.city,
+      country: obj.country
+    };
   });
 
-  const nav = useNavigate();
+  const id = customers?.map((obj: ICustomer) => {
+    return obj.customer_id
+  });
+
+  console.log(id);
 
   const goTo = (id: string, index: number) => {
     if (index === 0) {
@@ -50,12 +57,13 @@ const Customers = () => {
               <TH>Title</TH>
               <TH>City</TH>
               <TH>Country</TH>
+              <TH></TH>
             </TR>
           </THead>
           <TBody>
-            {tableData && tableData.map((obj: typeof customers[0], index: number) => {
-              const firstLetter = obj.contactName.split(' ')[0][0]
-              const secondLetter = obj.contactName.split(' ')[1][0]
+            {tableData && tableData.map((obj, index: number) => {
+              const firstLetter = obj.contact_name.split(' ')[0][0]
+              const secondLetter = obj.contact_name.split(' ')[1][0]
               return (
                 <TR key={index}>
                   <TDAvatar>
@@ -65,7 +73,7 @@ const Customers = () => {
                     <TD
                       key={valIndex}
                       isColored={valIndex === 0}
-                      onClick={() => goTo(`${index + 1}`, valIndex)}
+                      onClick={() => goTo(id![index], valIndex)}
                     >
                       {value}
                     </TD>
@@ -106,7 +114,6 @@ const Title = styled.div`
 const TableComponent = styled.table`
   width: 100%;
   background-color: #fff;
-  padding: 0 28px 0 0;
   border-spacing: 0;
 `;
 

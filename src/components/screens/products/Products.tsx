@@ -1,32 +1,32 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import RedoIcon from '@mui/icons-material/Redo';
 import { deleteKeys } from '../../../utils/deleteKeys';
-import Avatar from '../../shared/Avatar';
-import { Path } from '../../../App';
+import { AppDispatch, Path } from '../../../App';
 import { useNavigate } from 'react-router-dom';
+import { getProducts } from '../../../store/actions/user';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectProducts } from '../../../store/selectors/user';
+import { IProduct } from '../../../store/reducers/common';
 
 const Products = () => {
-  const customers = [
-    {
-      customerID: 'ALFKI', companyName: 'Alfreds Futterkiste', contactName: 'Maria Anders',
-      contactTitle: 'Sales Representative', address: 'Obere Str. 57', city: 'Berlin', region: '',
-      postalCode: '12209', country: 'Germany', phone: '030-0074321', fax: '030-0076545',
-    },
-    {
-      customerID: 'ANATR', companyName: 'Ana Trujillo Emparedados y helados', contactName: 'Ana Trujillo',
-      contactTitle: 'Owner', address: 'Avda. de la Constitución 2222', city: 'México D.F.', region: '',
-      postalCode: '05021', country: 'Mexico', phone: '(5) 555-4729', fax: '(5) 555-3745',
-    },
-  ];
+  const nav = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
 
-  const tableData = customers.map((obj) => {
-    const array = ['customerID', 'address', 'region', 'postalCode', 'phone', 'fax', 'homePage'];
-    const data = deleteKeys(obj, array);
+  const products = useSelector(selectProducts);
+
+  useEffect(() => {
+    dispatch(getProducts());
+  }, [])
+
+
+  const tableData = products?.map((obj) => {
+    const array = ['category_id', 'discontinued', 'product_id', 'reorder_level', 'supplier_id', 'supplier_name'];
+    const object = {...obj};
+    const data = deleteKeys(object, array);
+    object.unit_price = `$${object.unit_price}`
     return data;
   });
-
-  const nav = useNavigate();
 
   const goTo = (id: string, index: number) => {
     if (index === 0) {
@@ -49,10 +49,11 @@ const Products = () => {
               <TH>Price</TH>
               <TH>Stock</TH>
               <TH>Orders</TH>
+              <TH></TH>
             </TR>
           </THead>
           <TBody>
-            {tableData && tableData.map((obj: typeof customers[0], index: number) => {
+            {tableData && tableData.map((obj: IProduct, index: number) => {
               return (
                 <TR key={index}>
                   {Object.values(obj).map((value, valIndex) => (
@@ -100,7 +101,6 @@ const Title = styled.div`
 const TableComponent = styled.table`
   width: 100%;
   background-color: #fff;
-  padding: 0 28px 0 0;
   border-spacing: 0;
 `;
 

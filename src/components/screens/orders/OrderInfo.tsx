@@ -1,55 +1,95 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import BallotIcon from '@mui/icons-material/Ballot';
-import { deleteKeys } from '../../../utils/deleteKeys';
+import { date, price } from '../../../utils/deleteKeys';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Path } from '../../../App';
+import { AppDispatch, Path } from '../../../App';
+import { selectOrder, selectProductsInOrder } from '../../../store/selectors/user';
+import { getOrderInfo, getOrderProducts } from '../../../store/actions/user';
+import { useDispatch, useSelector } from 'react-redux';
+
+(function() {
+  function decimalAdjust(type, value, exp) {
+    if (typeof exp === 'undefined' || +exp === 0) {
+      return Math[type](value);
+    }
+    value = +value;
+    exp = +exp;
+    if (isNaN(value) || !(typeof exp === 'number' && exp % 1 === 0)) {
+      return NaN;
+    }
+    value = value.toString().split('e');
+    value = Math[type](+(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp)));
+    value = value.toString().split('e');
+    return +(value[0] + 'e' + (value[1] ? (+value[1] + exp) : exp));
+  }
+
+  if (!Math.round10) {
+    Math.round10 = function(value, exp) {
+      return decimalAdjust('round', value, exp);
+    };
+  }
+})();
 
 const OrderInfo = () => {
   const nav = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+
+  const order = useSelector(selectOrder);
+  const productsInOrder = useSelector(selectProductsInOrder);
+
+  const id = Number(useParams().id);
+
+  console.log(order);
+
+  useEffect(() => {
+    dispatch(getOrderInfo(id));
+    dispatch(getOrderProducts(id));
+  }, [])
 
   const infoLeftTitles = ['Customer Id', 'Ship Name', 'Total Products', 'Total Quantity', 'Total Price', 'Total Discount', 'Ship Via', 'Freight'];
   const infoRightTitles = ['Order Date', 'Required Date', 'Shipped Date', 'Ship City', 'Ship Region', 'Ship Postal Code', 'Ship Country'];
 
-  const customers = [
-    {
-      customerID: 'ALFKI', companyName: 'Alfreds Futterkiste', contactName: 'Maria Anders',
-      contactTitle: 'Sales Representative', address: 'Obere Str. 57', city: 'Berlin', postalCode: '12209',
-      region: '', country: 'Germany', phone: '030-0074321', fax: '030-0076545',
-    },
-    {
-      customerID: 'ANATR', companyName: 'Ana Trujillo Emparedados y helados', contactName: 'Ana Trujillo',
-      contactTitle: 'Owner', address: 'Avda. de la Constitución 2222', city: 'México D.F.',
-      postalCode: '05021', region: '', country: 'Mexico', phone: '(5) 555-4729', fax: '(5) 555-3745',
-    },
-  ];
+  const leftData = {
+    customer_id: order?.customer_id,
+    ship_name: order?.ship_name,
+    total_products: order?.total_products,
+    total_products_items: order?.total_products_items,
+    total_products_price: price(`${Math.round10(order?.total_products_price, -1)}`),
+    total_products_discount: price(`${Math.round10(order?.total_products_discount, -1)}`),
+    ship_via_company_name: order?.ship_via_company_name,
+    freight: `$${order?.freight}`,
+  };
 
-  const leftData = customers.map((obj) => {
-    const array = ['customerID', 'region', 'postalCode'];
-    const object = {...obj};
-    const data = deleteKeys(object, array);
-    return data;
+  const rightData = order && {
+    order_date: date(order?.order_date),
+    required_date: date(order?.required_date),
+    shipped_date: date(order?.shipped_date),
+    ship_city: order?.ship_city,
+    ship_region: order?.ship_region,
+    ship_postal_code: order?.ship_postal_code,
+    ship_country: order?.ship_country,
+  };
+
+  const tableData = productsInOrder?.map((obj) => {
+    return {
+      product_name: obj.product_name,
+      quantity: obj.quantity,
+      unit_price: price(`${Math.round10(obj.unit_price, -1)}`),
+      total_products_price: price(`${Math.round10(obj.total_products_price, -1)}`),
+      discount: `${obj.discount}%`
+    }
   });
-
-  const rightData = customers.map((obj) => {
-    const array: string[] = [];
-    const object = {...obj};
-    const data = deleteKeys(object, array);
-    return data;
-  });
-
-  const tableData = customers.map((obj) => {
-    const array: string[] = ['fax', 'phone', 'country', 'region', 'postalCode', 'city'];
-    const object = {...obj};
-    const data = deleteKeys(object, array);
-    return data;
-  });
-
-  const id: number = Number(useParams().id) - 1;
 
   const onButtonClick = () => {
     nav(Path.Orders)
   }
+
+  const goToCustomer = (index: number) => {
+    if (index === 0) {
+      nav(`${Path.Customers}/${order?.customer_id}`);
+    }
+  };
 
   const goTo = (id: string, index: number) => {
     if (index === 0) {
@@ -68,11 +108,16 @@ const OrderInfo = () => {
           <LeftWrap>
             {
               infoLeftTitles.map((title, index: number) => {
-                const value: any = Object.values(leftData[id])[index];
+                const value: any = Object.values(leftData)[index];
                 return (
                   <Info key={index}>
                     <InfoTitle>{title}</InfoTitle>
-                    <InfoValue>{value}</InfoValue>
+                    <InfoValue
+                      isColored={index === 0}
+                      onClick={() => goToCustomer(index)}
+                    >
+                      {value}
+                    </InfoValue>
                   </Info>
                 )
               })}
@@ -80,7 +125,10 @@ const OrderInfo = () => {
           <RightWrap>
             {
               infoRightTitles.map((title, index: number) => {
-                const value: any = Object.values(rightData[id])[index];
+                const value: any = rightData && Object.values(rightData)[index];
+                if (value === null || value === ' ') {
+                  title = ''
+                }
                 return (
                   <Info key={index}>
                     <InfoTitle>{title}</InfoTitle>
@@ -105,7 +153,7 @@ const OrderInfo = () => {
               </TR>
             </THead>
             <TBody>
-              {tableData && tableData.map((obj: typeof customers[0], index: number) => {
+              {tableData && tableData.map((obj, index: number) => {
                 return (
                   <TR key={index}>
                     {Object.values(obj).map((value, valIndex) => (
@@ -190,8 +238,10 @@ const InfoTitle = styled.div`
   margin: 0 0 8px;
 `;
 
-const InfoValue = styled.div`
+const InfoValue = styled.div<{ isColored?: boolean }>`
   line-height: 1.5rem;
+  color: ${({isColored}) => isColored && 'rgb(37 99 235)'};
+  cursor: ${({isColored}) => isColored && 'pointer'};
 `;
 
 const RightWrap = styled.div`

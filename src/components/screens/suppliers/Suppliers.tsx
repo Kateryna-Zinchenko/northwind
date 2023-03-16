@@ -1,32 +1,32 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import RedoIcon from '@mui/icons-material/Redo';
 import { deleteKeys } from '../../../utils/deleteKeys';
 import Avatar from '../../shared/Avatar';
 import { useNavigate } from 'react-router-dom';
-import { Path } from '../../../App';
+import { AppDispatch, Path } from '../../../App';
+import { getSuppliers } from '../../../store/actions/user';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectSuppliers } from '../../../store/selectors/user';
+import { ISupplier } from '../../../store/reducers/common';
 
 const Suppliers = () => {
-  const suppliers = [
-    {
-      supplierID: '1', companyName: 'Exotic Liquids', contactName: 'Charlotte Cooper',
-      contactTitle: 'Purchasing Manager', address: '49 Gilbert St.', city: 'London', region: '',
-      postalCode: 'EC1 4SD', country: 'UK', phone: '(171) 555-2222', fax: '', homePage: '',
-    },
-    {
-      supplierID: '2', companyName: 'New Orleans Cajun Delights', contactName: 'Shelley Burke',
-      contactTitle: 'Order Administrator', address: 'P.O. Box 78934', city: 'New Orleans', region: 'LA',
-      postalCode: '70117', country: 'USA', phone: '(100) 555-4822', fax: '', homePage: '#CAJUN.HTM#',
-    },
-  ];
+  const dispatch = useDispatch<AppDispatch>();
+  const nav = useNavigate();
 
-  const tableData = suppliers.map((obj) => {
-    const array = ['supplierID', 'address', 'region', 'postalCode', 'phone', 'fax', 'homePage'];
-    const data = deleteKeys(obj, array);
+  const suppliers = useSelector(selectSuppliers);
+
+  useEffect(() => {
+    dispatch(getSuppliers());
+  }, [])
+
+  const tableData = suppliers?.map((obj) => {
+    const array = ['supplier_id', 'address', 'region', 'postal_code', 'phone', 'fax', 'homepage'];
+    const object = {...obj};
+    const data = deleteKeys(object, array);
     return data;
   });
 
-  const nav = useNavigate();
 
   const goTo = (id: string, index: number) => {
     if (index === 0) {
@@ -36,7 +36,6 @@ const Suppliers = () => {
 
   const randomColor = Math.floor(Math.random()*16777215).toString(16);
 
-  console.log(randomColor);
   return (
     <Wrapper className='suppliers'>
       <Table>
@@ -53,18 +52,19 @@ const Suppliers = () => {
               <TH>Title</TH>
               <TH>City</TH>
               <TH>Country</TH>
+              <TH></TH>
             </TR>
           </THead>
           <TBody>
-            {tableData && tableData.map((obj: typeof suppliers[0], index: number) => {
-              const firstLetter = obj.contactName.split(' ')[0][0]
-              const secondLetter = obj.contactName.split(' ')[1][0]
+            {tableData && tableData.map((obj: ISupplier, index: number) => {
+              const firstLetter = obj.contact_name.split(' ')[0][0]
+              const secondLetter = obj.contact_name.split(' ')[1][0]
               return (
                 <TR key={index}>
                   <TDAvatar>
                     <Avatar firstLetter={firstLetter} secondLetter={secondLetter} />
                   </TDAvatar>
-                  {Object.values(obj).map((value, valIndex) => (
+                  {Object.values(obj).map((value: string, valIndex) => (
                     <TD
                       key={valIndex}
                       isColored={valIndex === 0}
@@ -108,7 +108,6 @@ const Title = styled.div`
 const TableComponent = styled.table`
   width: 100%;
   background-color: #fff;
-  padding: 0 24px 0 0;
   border-spacing: 0;
 `;
 

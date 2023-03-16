@@ -1,44 +1,46 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import BallotIcon from '@mui/icons-material/Ballot';
-import { deleteKeys } from '../../../utils/deleteKeys';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Path } from '../../../App';
+import { AppDispatch, Path } from '../../../App';
+import { selectSupplier } from '../../../store/selectors/user';
+import { useDispatch, useSelector } from 'react-redux';
+import { getSupplierInfo } from '../../../store/actions/user';
 
 const SupplierInfo = () => {
   const nav = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+  const supplier = useSelector(selectSupplier);
+
+  const id = Number(useParams().id);
+
+  useEffect(() => {
+    dispatch(getSupplierInfo(id));
+  }, [])
 
   const infoLeftTitles = ['Company Name', 'Contact Name', 'Contact Title', 'Address', 'City'];
-  const infoRightTitles = ['Region', 'Postal Code', 'Country', 'Phone'];
+  const infoRightTitles = ['Region', 'Postal Code', 'Country', 'Phone', 'Fax', 'Home Page'];
 
-  const suppliers = [
-    {
-      supplierID: '1', companyName: 'Exotic Liquids', contactName: 'Charlotte Cooper',
-      contactTitle: 'Purchasing Manager', address: '49 Gilbert St.', city: 'London', region: 'British Isles',
-      postalCode: 'EC1 4SD', country: 'UK', phone: '(171) 555-2222', fax: '', homePage: '',
-    },
-    {
-      supplierID: '2', companyName: 'New Orleans Cajun Delights', contactName: 'Shelley Burke',
-      contactTitle: 'Order Administrator', address: 'P.O. Box 78934', city: 'New Orleans', region: 'LA',
-      postalCode: '70117', country: 'USA', phone: '(100) 555-4822', fax: '', homePage: '#CAJUN.HTM#',
-    },
-  ];
+  const leftData = () => {
+    return {
+      company_name: supplier?.company_name,
+      contact_name: supplier?.contact_name,
+      contact_title: supplier?.contact_title,
+      address: supplier?.address,
+      city: supplier?.city
+    };
+  };
 
-  const leftData = suppliers.map((obj) => {
-    const array = ['supplierID', 'region', 'postalCode', 'country', 'phone', 'fax', 'homePage'];
-    const object = {...obj};
-    const data = deleteKeys(object, array);
-    return data;
-  });
-
-  const rightData = suppliers.map((obj) => {
-    const array = ['supplierID', 'companyName', 'contactName', 'contactTitle', 'address', 'fax', 'homePage', 'city'];
-    const object = {...obj};
-    const data = deleteKeys(object, array);
-    return data;
-  });
-
-  const id: number = Number(useParams().id) - 1;
+  const rightData = () => {
+    return {
+      region: supplier?.region,
+      postal_code: supplier?.postal_code,
+      country: supplier?.country,
+      phone: supplier?.phone,
+      fax: supplier?.fax,
+      homepage: supplier?.homepage
+    };
+  };
 
   const onButtonClick = () => {
     nav(Path.Suppliers)
@@ -55,7 +57,7 @@ const SupplierInfo = () => {
           <LeftWrap>
             {
               infoLeftTitles.map((title, index: number) => {
-                const value: any = Object.values(leftData[id])[index];
+                const value: any = Object.values(leftData())[index];
                 return (
                   <Info key={index}>
                     <InfoTitle>{title}</InfoTitle>
@@ -67,7 +69,10 @@ const SupplierInfo = () => {
           <RightWrap>
             {
               infoRightTitles.map((title, index: number) => {
-                const value: any = Object.values(rightData[id])[index];
+                const value: any = Object.values(rightData())[index];
+                if (value == null) {
+                  title = ''
+                }
                 return (
                   <Info key={index}>
                     <InfoTitle>{title}</InfoTitle>

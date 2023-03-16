@@ -4,7 +4,6 @@ class HttpClient {
   protected readonly instance: AxiosInstance;
 
   constructor(baseURL: string, contentType = 'application/json') {
-    axios.defaults.withCredentials = true;
 
     this.instance = axios.create({
       baseURL,
@@ -20,7 +19,7 @@ class HttpClient {
     this.instance.interceptors.response.use(this.responseSuccess);
   };
 
-  private responseSuccess = (response: AxiosResponse) => response.data.data;
+  private responseSuccess = (response: AxiosResponse) => response;
 }
 
 export default HttpClient;

@@ -15,6 +15,7 @@ import ProductsInfo from './components/screens/products/ProductsInfo';
 import Orders from './components/screens/orders/Orders';
 import OrderInfo from './components/screens/orders/OrderInfo';
 import Search from './components/screens/search/Search';
+import store from './store';
 
 export enum Path {
   Home = '/',
@@ -26,6 +27,8 @@ export enum Path {
   Customers = '/customers',
   Search = '/search',
 }
+
+export type AppDispatch = typeof store.dispatch;
 
 const App: React.FC = () => (
   <Wrapper>
