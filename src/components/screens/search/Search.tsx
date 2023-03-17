@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import SearchIcon from '@mui/icons-material/Search';
-import { AppDispatch } from '../../../App';
+import { AppDispatch, Path } from '../../../App';
 import { useDispatch, useSelector } from 'react-redux';
-import { getSearchCust, getSearchProd } from '../../../store/actions/user';
-import { selectSearchCustomers, selectSearchProducts } from '../../../store/selectors/user';
+import { getSearchCust, getSearchProd, userActions } from '../../../store/actions/user';
+import { selectSearchCategory, selectSearchResults, selectState } from '../../../store/selectors/user';
+import { useNavigate } from 'react-router-dom';
+import { RequestState } from '../../../store/reducers/common';
 
 enum SearchGroup {
   Products = 'products',
@@ -15,31 +17,55 @@ const Search = () => {
   const [value, setValue] = useState(SearchGroup.Products);
   const [inputValue, setInputValue] = useState('');
 
+  const nav = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  const customers = useSelector(selectSearchCustomers);
-  const products = useSelector(selectSearchProducts);
+  const searchResults = useSelector(selectSearchResults);
+  const searchCategory = useSelector(selectSearchCategory);
+  const state = useSelector(selectState);
+
+  const id = searchResults?.map((obj: any) => {
+    if (searchCategory === SearchGroup.Products) {
+      return obj.product_id;
+    } else if (searchCategory === SearchGroup.Customers) {
+      return obj.customer_id;
+    }
+  });
 
   useEffect(() => {
-    dispatch(getSearchCust(value))
-    dispatch(getSearchProd(value))
-  },[])
+    dispatch(userActions.setSearchResults(null));
+  }, []);
 
   const onRadioButClick = (e: any) => {
     setValue(e.target.value);
-  }
+    if (e.target.value === SearchGroup.Products) {
+      dispatch(getSearchProd(inputValue));
+    } else if (e.target.value === SearchGroup.Customers) {
+      dispatch(getSearchCust(inputValue));
+    }
+  };
 
   const onInputChange = (e: any) => {
     setInputValue(e.target.value);
-  }
+  };
 
-  // const onEnterClick = (e: any) => {
-  //   if (e.key === 'Enter') {
-  //
-  //   }
-  // }
+  const onEnterClick = (e: any) => {
+    if (e.key === 'Enter') {
+      if (value === SearchGroup.Products) {
+        dispatch(getSearchProd(inputValue));
+      } else if (value === SearchGroup.Customers) {
+        dispatch(getSearchCust(inputValue));
+      }
+    }
+  };
 
-  console.log(customers, products);
+  const goTo = (id: number) => {
+    if (searchCategory === SearchGroup.Products) {
+      nav(`${Path.Products}/${id}`);
+    } else if (searchCategory === SearchGroup.Customers) {
+      nav(`${Path.Customers}/${id}`);
+    }
+  };
 
   return (
     <MainWrapper>
@@ -53,19 +79,19 @@ const Search = () => {
             placeholder='Enter keyword...'
             value={inputValue}
             onChange={onInputChange}
-            // onKeyDown={onEnterClick}
+            onKeyDown={onEnterClick}
           />
         </InputWrapper>
         <Title>Tables</Title>
         <Buttons>
-            <Item onClick={onRadioButClick}>
-              <TranspInput
-                value={SearchGroup.Products}
-                readOnly
-              />
-              <RadioBut checked={value === SearchGroup.Products} />
-              <Name>Products</Name>
-            </Item>
+          <Item onClick={onRadioButClick}>
+            <TranspInput
+              value={SearchGroup.Products}
+              readOnly
+            />
+            <RadioBut checked={value === SearchGroup.Products} />
+            <Name>Products</Name>
+          </Item>
           <Item onClick={onRadioButClick}>
             <TranspInput
               value={SearchGroup.Customers}
@@ -76,7 +102,33 @@ const Search = () => {
           </Item>
         </Buttons>
         <H1>Search results</H1>
-        <Results>No results</Results>
+        {
+          state === RequestState.LOADING ? <Results>Loading...</Results> :
+            <>
+              {
+                (searchResults?.length === 0 || searchResults == null) &&
+                <Results>No results</Results>
+              }
+              {
+                searchResults && searchCategory === SearchGroup.Products && searchResults.map((obj: any, index: number) => (
+                  <Products key={index}>
+                    <ProductName onClick={() => goTo(id[index])}>{obj.product_name}</ProductName>
+                    <ProductInfo>#{index + 1}, Quantity Per Unit: {obj.quantity_per_unit},
+                      Price: {obj.unit_price}, Stock: {obj.units_in_stock}</ProductInfo>
+                  </Products>
+                ))
+              }
+              {
+                searchResults && searchCategory === SearchGroup.Customers && searchResults.map((obj: any, index: number) => (
+                  <Products key={index}>
+                    <ProductName onClick={() => goTo(id[index])}>{obj.company_name}</ProductName>
+                    <ProductInfo>#{index + 1}, Contact: {obj.contact_name},
+                      Title: {obj.contact_title}, Phone: {obj.phone}</ProductInfo>
+                  </Products>
+                ))
+              }
+            </>
+        }
       </Wrapper>
     </MainWrapper>
   );
@@ -146,7 +198,7 @@ const Item = styled.label`
   cursor: pointer;
   display: inline-flex;
   position: relative;
-  
+
   &:last-child {
     margin: 0 0 0 12px;
   }
@@ -165,7 +217,7 @@ const RadioBut = styled.span<{ checked: boolean }>`
   display: block;
   height: 1.25rem;
   width: 1.25rem;
-  border: ${({checked}) => checked ? '5px solid rgb(59 130 246)' : '1px solid rgb(209 213 219)'};
+  border: ${({ checked }) => checked ? '5px solid rgb(59 130 246)' : '1px solid rgb(209 213 219)'};
   border-radius: 9999px;
 `;
 
@@ -183,6 +235,24 @@ const H1 = styled.div`
 const Results = styled.div`
   margin: 24px 0 0;
   line-height: 1.5rem;
+`;
+
+const Products = styled.div`
+  margin: 8px 0 0;
+`;
+
+const ProductName = styled.p`
+  color: rgb(37 99 235);
+  line-height: 1.5rem;
+  cursor: pointer;
+  user-select: text;
+`;
+
+const ProductInfo = styled.p`
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: rgb(156 163 175);
+  user-select: text;
 `;
 
 export default Search;

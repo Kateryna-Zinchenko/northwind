@@ -4,9 +4,10 @@ import BallotIcon from '@mui/icons-material/Ballot';
 import { date, price } from '../../../utils/deleteKeys';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppDispatch, Path } from '../../../App';
-import { selectOrder, selectProductsInOrder } from '../../../store/selectors/user';
+import { selectOrder, selectProductsInOrder, selectState } from '../../../store/selectors/user';
 import { getOrderInfo, getOrderProducts } from '../../../store/actions/user';
 import { useDispatch, useSelector } from 'react-redux';
+import { RequestState } from '../../../store/reducers/common';
 
 const OrderInfo = () => {
   const nav = useNavigate();
@@ -14,15 +15,22 @@ const OrderInfo = () => {
 
   const order = useSelector(selectOrder);
   const productsInOrder = useSelector(selectProductsInOrder);
+  const state = useSelector(selectState);
 
   const id = Number(useParams().id);
 
-  console.log(order);
+  const productId = productsInOrder?.map((obj) => {
+    return obj.product_id;
+  });
 
   useEffect(() => {
-    dispatch(getOrderInfo(id));
-    dispatch(getOrderProducts(id));
-  }, [])
+    if (!order) {
+      dispatch(getOrderInfo(id));
+    }
+    if (!productsInOrder) {
+      dispatch(getOrderProducts(id));
+    }
+  }, []);
 
   const infoLeftTitles = ['Customer Id', 'Ship Name', 'Total Products', 'Total Quantity', 'Total Price', 'Total Discount', 'Ship Via', 'Freight'];
   const infoRightTitles = ['Order Date', 'Required Date', 'Shipped Date', 'Ship City', 'Ship Region', 'Ship Postal Code', 'Ship Country'];
@@ -34,10 +42,10 @@ const OrderInfo = () => {
     total_products_items: order?.total_products_items,
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    total_products_price: price(`${Math.round(order?.total_products_price*100)/100}`),
+    total_products_price: price(`${Math.round(order?.total_products_price * 100) / 100}`),
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    total_products_discount: price(`${Math.round(order?.total_products_discount*100)/100}`),
+    total_products_discount: price(`${Math.round(order?.total_products_discount * 100) / 100}`),
     ship_via_company_name: order?.ship_via_company_name,
     freight: `$${order?.freight}`,
   };
@@ -58,15 +66,15 @@ const OrderInfo = () => {
       quantity: obj.quantity,
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      unit_price: price(`${Math.round(obj.unit_price*100)/100}`),
-      total_products_price: price(`${Math.round(obj.total_products_price*100)/100}`),
-      discount: `${obj.discount}%`
-    }
+      unit_price: price(`${Math.round(obj.unit_price * 100) / 100}`),
+      total_products_price: price(`${Math.round(obj.total_products_price * 100) / 100}`),
+      discount: `${obj.discount}%`,
+    };
   });
 
   const onButtonClick = () => {
-    nav(Path.Orders)
-  }
+    nav(Path.Orders);
+  };
 
   const goToCustomer = (index: number) => {
     if (index === 0) {
@@ -74,7 +82,7 @@ const OrderInfo = () => {
     }
   };
 
-  const goTo = (id: string, index: number) => {
+  const goTo = (id: number, index: number) => {
     if (index === 0) {
       nav(`${Path.Products}/${id}`);
     }
@@ -82,82 +90,85 @@ const OrderInfo = () => {
 
   return (
     <Wrapper>
-      <Table>
-        <Header>
-          <BallotIcon />
-          <Title>Order information</Title>
-        </Header>
-        <InfoWrap>
-          <LeftWrap>
-            {
-              infoLeftTitles.map((title, index: number) => {
-                const value: any = Object.values(leftData)[index];
-                return (
-                  <Info key={index}>
-                    <InfoTitle>{title}</InfoTitle>
-                    <InfoValue
-                      isColored={index === 0}
-                      onClick={() => goToCustomer(index)}
-                    >
-                      {value}
-                    </InfoValue>
-                  </Info>
-                )
-              })}
-          </LeftWrap>
-          <RightWrap>
-            {
-              infoRightTitles.map((title, index: number) => {
-                const value: any = rightData && Object.values(rightData)[index];
-                if (value === null || value === ' ') {
-                  title = ''
-                }
-                return (
-                  <Info key={index}>
-                    <InfoTitle>{title}</InfoTitle>
-                    <InfoValue>{value}</InfoValue>
-                  </Info>
-                )
-              })}
-          </RightWrap>
-        </InfoWrap>
-        <Table>
-          <Header2>
-            <Title2>Products in Order</Title2>
-          </Header2>
-          <TableComponent>
-            <THead>
-              <TR>
-                <TH>Product</TH>
-                <TH>Quantity</TH>
-                <TH>Order Price</TH>
-                <TH>Total Price</TH>
-                <TH>Discount</TH>
-              </TR>
-            </THead>
-            <TBody>
-              {tableData && tableData.map((obj, index: number) => {
-                return (
-                  <TR key={index}>
-                    {Object.values(obj).map((value, valIndex) => (
-                      <TD
-                        key={valIndex}
-                        isColored={valIndex === 0}
-                        onClick={() => goTo(`${index + 1}`, valIndex)}
-                      >
-                        {value}
-                      </TD>
-                    ))}
+      {
+        state === RequestState.LOADING ? <div>Loading...</div> :
+          <Table>
+            <Header>
+              <BallotIcon />
+              <Title>Order information</Title>
+            </Header>
+            <InfoWrap>
+              <LeftWrap>
+                {
+                  infoLeftTitles.map((title, index: number) => {
+                    const value: any = Object.values(leftData)[index];
+                    return (
+                      <Info key={index}>
+                        <InfoTitle>{title}</InfoTitle>
+                        <InfoValue
+                          isColored={index === 0}
+                          onClick={() => goToCustomer(index)}
+                        >
+                          {value}
+                        </InfoValue>
+                      </Info>
+                    );
+                  })}
+              </LeftWrap>
+              <RightWrap>
+                {
+                  infoRightTitles.map((title, index: number) => {
+                    const value: any = rightData && Object.values(rightData)[index];
+                    if (value === null || value === ' ') {
+                      title = '';
+                    }
+                    return (
+                      <Info key={index}>
+                        <InfoTitle>{title}</InfoTitle>
+                        <InfoValue>{value}</InfoValue>
+                      </Info>
+                    );
+                  })}
+              </RightWrap>
+            </InfoWrap>
+            <Table>
+              <Header2>
+                <Title2>Products in Order</Title2>
+              </Header2>
+              <TableComponent>
+                <THead>
+                  <TR>
+                    <TH>Product</TH>
+                    <TH>Quantity</TH>
+                    <TH>Order Price</TH>
+                    <TH>Total Price</TH>
+                    <TH>Discount</TH>
                   </TR>
-                )
-              })}
-            </TBody>
-          </TableComponent>
-        </Table>
-        <ButtonWrapper>
-          <Button onClick={onButtonClick}>Go back</Button>
-        </ButtonWrapper>
-      </Table>
+                </THead>
+                <TBody>
+                  {tableData && tableData.map((obj, index: number) => {
+                    return (
+                      <TR key={index}>
+                        {Object.values(obj).map((value, valIndex) => (
+                          <TD
+                            key={valIndex}
+                            isColored={valIndex === 0}
+                            onClick={() => productId && goTo(productId[index], valIndex)}
+                          >
+                            {value}
+                          </TD>
+                        ))}
+                      </TR>
+                    );
+                  })}
+                </TBody>
+              </TableComponent>
+            </Table>
+            <ButtonWrapper>
+              <Button onClick={onButtonClick}>Go back</Button>
+            </ButtonWrapper>
+          </Table>
+      }
     </Wrapper>
   );
 };
@@ -200,7 +211,7 @@ const Title2 = styled(Title)`
 const InfoWrap = styled.div`
   padding: 24px;
   display: grid;
-  grid-template-columns: repeat(2,minmax(0,1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
 `;
 
@@ -219,12 +230,14 @@ const InfoTitle = styled.div`
   font-weight: 700;
   line-height: 1.5rem;
   margin: 0 0 8px;
+  user-select: text;
 `;
 
 const InfoValue = styled.div<{ isColored?: boolean }>`
   line-height: 1.5rem;
-  color: ${({isColored}) => isColored && 'rgb(37 99 235)'};
-  cursor: ${({isColored}) => isColored && 'pointer'};
+  color: ${({ isColored }) => isColored && 'rgb(37 99 235)'};
+  cursor: ${({ isColored }) => isColored && 'pointer'};
+  user-select: text;
 `;
 
 const RightWrap = styled.div`
@@ -243,7 +256,7 @@ const Button = styled.button`
   border-radius: 0.25rem;
   cursor: pointer;
   padding: 8px 16px;
-  
+
   &:hover {
     background-color: rgb(220 38 38);
   }
@@ -260,6 +273,7 @@ const THead = styled.thead`
   & > tr:nth-child(odd) {
     background-color: #fff;
   }
+
   & > tr:nth-child(odd):hover {
     background-color: #fff;
   }
@@ -269,10 +283,12 @@ const TR = styled.tr`
   &:hover {
     background-color: rgb(243 244 246);
   }
-  &:nth-child(odd){
+
+  &:nth-child(odd) {
     background-color: rgb(249 250 251)
   }
-  &:nth-child(odd):hover{
+
+  &:nth-child(odd):hover {
     background-color: rgb(243 244 246);
   }
 `;
@@ -288,8 +304,8 @@ const TBody = styled.tbody``;
 const TD = styled.td<{ isColored: boolean }>`
   padding: 8px 12px;
   height: 40px;
-  color: ${({isColored}) => isColored && 'rgb(37 99 235)'};
-  cursor: ${({isColored}) => isColored && 'pointer'};
+  color: ${({ isColored }) => isColored && 'rgb(37 99 235)'};
+  cursor: ${({ isColored }) => isColored && 'pointer'};
 `;
 
 export default OrderInfo;

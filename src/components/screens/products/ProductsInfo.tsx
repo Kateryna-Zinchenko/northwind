@@ -3,19 +3,24 @@ import styled from 'styled-components';
 import BallotIcon from '@mui/icons-material/Ballot';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppDispatch, Path } from '../../../App';
-import { selectProduct } from '../../../store/selectors/user';
+import { selectProduct, selectState } from '../../../store/selectors/user';
 import { useDispatch, useSelector } from 'react-redux';
 import { getProductInfo } from '../../../store/actions/user';
+import { RequestState } from '../../../store/reducers/common';
 
 const ProductInfo = () => {
   const dispatch = useDispatch<AppDispatch>();
   const nav = useNavigate();
+
   const product = useSelector(selectProduct);
+  const state = useSelector(selectState);
 
   const id = Number(useParams().id);
 
   useEffect(() => {
-    dispatch(getProductInfo(id));
+    if (!product) {
+      dispatch(getProductInfo(id));
+    }
   }, [])
 
   const infoLeftTitles = ['Product Name', 'Supplier', 'Quantity Per Unit', 'Unit Price'];
@@ -51,49 +56,52 @@ const ProductInfo = () => {
 
   return (
     <Wrapper>
-      <Table>
-        <Header>
-          <BallotIcon />
-          <Title>Product information</Title>
-        </Header>
-        <InfoWrap>
-          <LeftWrap>
-            {
-              infoLeftTitles.map((title, index: number) => {
-                const value: any = Object.values(leftData())[index];
-                return (
-                  <Info key={index}>
-                    <InfoTitle>{title}</InfoTitle>
-                    <InfoValue
-                      isColored={index === 1}
-                      onClick={() => goTo(index)}
-                    >
-                      {value}
-                    </InfoValue>
-                  </Info>
-                )
-              })}
-          </LeftWrap>
-          <RightWrap>
-            {
-              infoRightTitles.map((title, index: number) => {
-                const value: any = Object.values(rightData())[index];
-                if (value == null) {
-                  title = ''
-                }
-                return (
-                  <Info key={index}>
-                    <InfoTitle>{title}</InfoTitle>
-                    <InfoValue>{value}</InfoValue>
-                  </Info>
-                )
-              })}
-          </RightWrap>
-        </InfoWrap>
-        <ButtonWrapper>
-          <Button onClick={onButtonClick}>Go back</Button>
-        </ButtonWrapper>
-      </Table>
+      {
+        state === RequestState.LOADING ? <div>Loading...</div> :
+          <Table>
+            <Header>
+              <BallotIcon />
+              <Title>Product information</Title>
+            </Header>
+            <InfoWrap>
+              <LeftWrap>
+                {
+                  infoLeftTitles.map((title, index: number) => {
+                    const value: any = Object.values(leftData())[index];
+                    return (
+                      <Info key={index}>
+                        <InfoTitle>{title}</InfoTitle>
+                        <InfoValue
+                          isColored={index === 1}
+                          onClick={() => goTo(index)}
+                        >
+                          {value}
+                        </InfoValue>
+                      </Info>
+                    )
+                  })}
+              </LeftWrap>
+              <RightWrap>
+                {
+                  infoRightTitles.map((title, index: number) => {
+                    const value: any = Object.values(rightData())[index];
+                    if (value == null) {
+                      title = ''
+                    }
+                    return (
+                      <Info key={index}>
+                        <InfoTitle>{title}</InfoTitle>
+                        <InfoValue>{value}</InfoValue>
+                      </Info>
+                    )
+                  })}
+              </RightWrap>
+            </InfoWrap>
+            <ButtonWrapper>
+              <Button onClick={onButtonClick}>Go back</Button>
+            </ButtonWrapper>
+          </Table>
+      }
     </Wrapper>
   );
 };
@@ -145,12 +153,14 @@ const InfoTitle = styled.div`
   font-weight: 700;
   line-height: 1.5rem;
   margin: 0 0 8px;
+  user-select: text;
 `;
 
 const InfoValue = styled.div<{ isColored?: boolean }>`
   line-height: 1.5rem;
   color: ${({isColored}) => isColored && 'rgb(37 99 235)'};
   cursor: ${({isColored}) => isColored && 'pointer'};
+  user-select: text;
 `;
 
 const RightWrap = styled.div`

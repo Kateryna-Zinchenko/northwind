@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import RedoIcon from '@mui/icons-material/Redo';
 import Avatar from '../../shared/Avatar';
@@ -6,16 +6,36 @@ import { useNavigate } from 'react-router-dom';
 import { AppDispatch, Path } from '../../../App';
 import { getEmployees } from '../../../store/actions/user';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectEmployees } from '../../../store/selectors/user';
+import { selectEmployees, selectState } from '../../../store/selectors/user';
+import { RequestState } from '../../../store/reducers/common';
+import { getRandomColor } from '../../../utils/deleteKeys';
 
 const Employees = () => {
+  const [colors, setColors] = useState<string[]>([]);
+
   const nav = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
   const employees = useSelector(selectEmployees);
+  const state = useSelector(selectState);
 
   useEffect(() => {
-    dispatch(getEmployees());
+    const storedColors = localStorage.getItem('employees_colors');
+    if (storedColors) {
+      setColors(JSON.parse(storedColors));
+    } else {
+      if (employees != null) {
+        const initialColors = Array.from({ length: employees.length }, () => getRandomColor());
+        localStorage.setItem('employees_colors', JSON.stringify(initialColors));
+        setColors(initialColors);
+      }
+    }
+  }, [employees]);
+
+  useEffect(() => {
+    if (!employees) {
+      dispatch(getEmployees());
+    }
   }, [])
 
   const tableData = employees?.map((obj) => {
@@ -39,46 +59,49 @@ const Employees = () => {
   console.log(employees);
   return (
     <Wrapper className='suppliers'>
-      <Table>
-        <Header>
-          <Title>Employees</Title>
-          <RedoIcon />
-        </Header>
-        <TableComponent>
-          <THead>
-            <TR>
-              <TH></TH>
-              <TH>Name</TH>
-              <TH>Title</TH>
-              <TH>City</TH>
-              <TH>Phone</TH>
-              <TH>Country</TH>
-              <TH></TH>
-            </TR>
-          </THead>
-          <TBody>
-            {tableData && tableData.map((obj, index: number) => {
-              const firstLetter = obj.full_name.split(' ')[0][0]
-              const secondLetter = obj.full_name.split(' ')[1][0]
-              return (
-                <TR key={index}>
-                  <TDAvatar>
-                    <Avatar firstLetter={firstLetter} secondLetter={secondLetter} />
-                  </TDAvatar>
-                  {Object.values(obj).map((value, valIndex) => (
-                    <TD
-                      key={valIndex}
-                      isColored={valIndex === 0}
-                      onClick={() => goTo(`${index + 1}`, valIndex)}>
-                      {value}
-                    </TD>
-                  ))}
+      {
+        state === RequestState.LOADING ? <div>Loading...</div> :
+          <Table>
+            <Header>
+              <Title>Employees</Title>
+              <RedoIcon />
+            </Header>
+            <TableComponent>
+              <THead>
+                <TR>
+                  <TH></TH>
+                  <TH>Name</TH>
+                  <TH>Title</TH>
+                  <TH>City</TH>
+                  <TH>Phone</TH>
+                  <TH>Country</TH>
+                  <TH></TH>
                 </TR>
-              )
-            })}
-          </TBody>
-        </TableComponent>
-      </Table>
+              </THead>
+              <TBody>
+                {tableData && tableData.map((obj, index: number) => {
+                  const firstLetter = obj.full_name.split(' ')[0][0]
+                  const secondLetter = obj.full_name.split(' ')[1][0]
+                  return (
+                    <TR key={index}>
+                      <TDAvatar>
+                        <Avatar color={colors[index]} firstLetter={firstLetter} secondLetter={secondLetter} />
+                      </TDAvatar>
+                      {Object.values(obj).map((value, valIndex) => (
+                        <TD
+                          key={valIndex}
+                          isColored={valIndex === 0}
+                          onClick={() => goTo(`${index + 1}`, valIndex)}>
+                          {value}
+                        </TD>
+                      ))}
+                    </TR>
+                  )
+                })}
+              </TBody>
+            </TableComponent>
+          </Table>
+      }
     </Wrapper>
   );
 };
@@ -137,6 +160,7 @@ const TH = styled.th`
   padding: 8px 12px;
   text-align: left;
   height: 40px;
+  user-select: text;
 `;
 
 const TBody = styled.tbody``;
@@ -145,7 +169,6 @@ const TDAvatar = styled.td`
   width: 48px;
   text-align: center;
   padding: 8px 12px;
-
 `;
 
 const TD = styled.td<{ isColored: boolean }>`
@@ -153,6 +176,7 @@ const TD = styled.td<{ isColored: boolean }>`
   height: 40px;
   color: ${({isColored}) => isColored && 'rgb(37 99 235)'};
   cursor: ${({isColored}) => isColored && 'pointer'};
+  user-select: text;
 `;
 
 export default Employees;

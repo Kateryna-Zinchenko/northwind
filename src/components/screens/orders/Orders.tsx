@@ -1,21 +1,25 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import RedoIcon from '@mui/icons-material/Redo';
 import { AppDispatch, Path } from '../../../App';
 import { useNavigate } from 'react-router-dom';
-import { selectOrders } from '../../../store/selectors/user';
+import { selectOrders, selectState } from '../../../store/selectors/user';
 import { getOrders } from '../../../store/actions/user';
 import { useDispatch, useSelector } from 'react-redux';
-import { date, price } from '../../../utils/deleteKeys';
+import { date, getRandomColor, price } from '../../../utils/deleteKeys';
+import { RequestState } from '../../../store/reducers/common';
 
 const Orders = () => {
   const nav = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
   const orders = useSelector(selectOrders);
+  const state = useSelector(selectState);
 
   useEffect(() => {
-    dispatch(getOrders());
+    if (!orders) {
+      dispatch(getOrders());
+    }
   }, [])
 
   const tableData = orders?.map((obj) => {
@@ -43,44 +47,47 @@ const Orders = () => {
 
   return (
     <Wrapper className='suppliers'>
-      <Table>
-        <Header>
-          <Title>Orders</Title>
-          <RedoIcon />
-        </Header>
-        <TableComponent>
-          <THead>
-            <TR>
-              <TH>Id</TH>
-              <TH>Total Price</TH>
-              <TH>Products</TH>
-              <TH>Quantity</TH>
-              <TH>Shipped</TH>
-              <TH>Ship Name</TH>
-              <TH>City</TH>
-              <TH>Country</TH>
-              <TH></TH>
-            </TR>
-          </THead>
-          <TBody>
-            {tableData && tableData.map((obj, index: number) => {
-              return (
-                <TR key={index}>
-                  {Object.values(obj).map((value, valIndex) => (
-                    <TD
-                      key={valIndex}
-                      isColored={valIndex === 0}
-                      onClick={() => goTo(id![index], valIndex)}
-                    >
-                      {value}
-                    </TD>
-                  ))}
+      {
+        state === RequestState.LOADING ? <div>Loading...</div> :
+          <Table>
+            <Header>
+              <Title>Orders</Title>
+              <RedoIcon />
+            </Header>
+            <TableComponent>
+              <THead>
+                <TR>
+                  <TH>Id</TH>
+                  <TH>Total Price</TH>
+                  <TH>Products</TH>
+                  <TH>Quantity</TH>
+                  <TH>Shipped</TH>
+                  <TH>Ship Name</TH>
+                  <TH>City</TH>
+                  <TH>Country</TH>
+                  <TH></TH>
                 </TR>
-              )
-            })}
-          </TBody>
-        </TableComponent>
-      </Table>
+              </THead>
+              <TBody>
+                {tableData && tableData.map((obj, index: number) => {
+                  return (
+                    <TR key={index}>
+                      {Object.values(obj).map((value, valIndex) => (
+                        <TD
+                          key={valIndex}
+                          isColored={valIndex === 0}
+                          onClick={() => goTo(id![index], valIndex)}
+                        >
+                          {value}
+                        </TD>
+                      ))}
+                    </TR>
+                  )
+                })}
+              </TBody>
+            </TableComponent>
+          </Table>
+      }
     </Wrapper>
   );
 };
@@ -139,6 +146,7 @@ const TH = styled.th`
   padding: 8px 12px;
   text-align: left;
   height: 40px;
+  user-select: text;
 `;
 
 const TBody = styled.tbody``;

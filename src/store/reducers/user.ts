@@ -1,5 +1,5 @@
 import { createReducerFunction, ImmerReducer } from 'immer-reducer';
-import { ICustomer, IEmployee, IOrder, IProduct, IProducts, ISupplier } from './common';
+import { ICustomer, IEmployee, IOrder, IProduct, IStats, ISupplier, RequestState } from './common';
 
 interface UserState {
   suppliers: ISupplier[] | null,
@@ -13,8 +13,11 @@ interface UserState {
   employee: IEmployee | null,
   customers: ICustomer[] | null,
   customer: ICustomer | null,
-  searchCustomers: ICustomer[] | null,
-  searchProducts: IProduct[] | null,
+  searchResults: ICustomer[] | null,
+  searchCategory: string | null,
+  searchError: string | null,
+  stats: IStats[] | [],
+  state: RequestState,
 }
 
 const initialState: UserState = {
@@ -29,8 +32,11 @@ const initialState: UserState = {
   employee: null,
   customers: null,
   customer: null,
-  searchCustomers: null,
-  searchProducts: null
+  searchResults: null,
+  searchCategory: null,
+  searchError: null,
+  stats: [],
+  state: RequestState.IDLE,
 };
 
 export class User extends ImmerReducer<UserState> {
@@ -78,12 +84,20 @@ export class User extends ImmerReducer<UserState> {
     this.draftState.customer = customer;
   }
 
-  setSearchCustomers(searchCustomers: ICustomer[]) {
-    this.draftState.searchCustomers = searchCustomers;
+  setSearchResults(searchResults: ICustomer[] | null) {
+    this.draftState.searchResults = searchResults;
   }
 
-  setSearchProducts(searchProducts: IProduct[]) {
-    this.draftState.searchProducts = searchProducts;
+  setSearchCategory(searchCategory: string) {
+    this.draftState.searchCategory = searchCategory;
+  }
+
+  setStats(stats: IStats) {
+    this.draftState.stats = [...this.draftState.stats, stats];
+  }
+
+  setState(state: RequestState) {
+    this.draftState.state = state;
   }
 }
 

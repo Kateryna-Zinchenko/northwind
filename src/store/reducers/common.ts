@@ -1,3 +1,10 @@
+export enum RequestState {
+  IDLE = 'IDLE',
+  LOADING = 'LOADING',
+  LOADED = 'LOADED',
+  ERROR = 'ERROR',
+}
+
 export interface IStats {
   log: string[]
   queries: number

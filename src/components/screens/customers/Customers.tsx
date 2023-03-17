@@ -1,23 +1,44 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import RedoIcon from '@mui/icons-material/Redo';
 import Avatar from '../../shared/Avatar';
 import { AppDispatch, Path } from '../../../App';
 import { useNavigate } from 'react-router-dom';
-import { selectCustomers } from '../../../store/selectors/user';
+import { selectCustomers, selectState } from '../../../store/selectors/user';
 import { getCustomers } from '../../../store/actions/user';
 import { useDispatch, useSelector } from 'react-redux';
-import { ICustomer } from '../../../store/reducers/common';
+import { ICustomer, RequestState } from '../../../store/reducers/common';
+import { getRandomColor } from '../../../utils/deleteKeys';
 
 const Customers = () => {
+  const [colors, setColors] = useState<string[]>([]);
+
   const nav = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
   const customers = useSelector(selectCustomers);
+  const state = useSelector(selectState);
 
   useEffect(() => {
-    dispatch(getCustomers());
-  }, [])
+    const storedColors = localStorage.getItem('customers_colors');
+    if (storedColors) {
+      setColors(JSON.parse(storedColors));
+    } else {
+      if (customers != null) {
+        const initialColors = Array.from({ length: customers.length }, () => getRandomColor());
+        localStorage.setItem('customers_colors', JSON.stringify(initialColors));
+        setColors(initialColors);
+      }
+    }
+  }, [customers]);
+
+  console.log(colors);
+
+  useEffect(() => {
+    if (!customers) {
+      dispatch(getCustomers());
+    }
+  }, []);
 
   const tableData = customers?.map((obj: ICustomer) => {
     return {
@@ -25,15 +46,13 @@ const Customers = () => {
       contact_name: obj.contact_name,
       contact_title: obj.contact_title,
       city: obj.city,
-      country: obj.country
+      country: obj.country,
     };
   });
 
   const id = customers?.map((obj: ICustomer) => {
-    return obj.customer_id
+    return obj.customer_id;
   });
-
-  console.log(id);
 
   const goTo = (id: string, index: number) => {
     if (index === 0) {
@@ -43,47 +62,50 @@ const Customers = () => {
 
   return (
     <Wrapper className='suppliers'>
-      <Table>
-        <Header>
-          <Title>Customers</Title>
-          <RedoIcon />
-        </Header>
-        <TableComponent>
-          <THead>
-            <TR>
-              <TH></TH>
-              <TH>Company</TH>
-              <TH>Contact</TH>
-              <TH>Title</TH>
-              <TH>City</TH>
-              <TH>Country</TH>
-              <TH></TH>
-            </TR>
-          </THead>
-          <TBody>
-            {tableData && tableData.map((obj, index: number) => {
-              const firstLetter = obj.contact_name.split(' ')[0][0]
-              const secondLetter = obj.contact_name.split(' ')[1][0]
-              return (
-                <TR key={index}>
-                  <TDAvatar>
-                    <Avatar firstLetter={firstLetter} secondLetter={secondLetter} />
-                  </TDAvatar>
-                  {Object.values(obj).map((value, valIndex) => (
-                    <TD
-                      key={valIndex}
-                      isColored={valIndex === 0}
-                      onClick={() => goTo(id![index], valIndex)}
-                    >
-                      {value}
-                    </TD>
-                  ))}
+      {
+        state === RequestState.LOADING ? <div>Loading...</div> :
+          <Table>
+            <Header>
+              <Title>Customers</Title>
+              <RedoIcon />
+            </Header>
+            <TableComponent>
+              <THead>
+                <TR>
+                  <TH></TH>
+                  <TH>Company</TH>
+                  <TH>Contact</TH>
+                  <TH>Title</TH>
+                  <TH>City</TH>
+                  <TH>Country</TH>
+                  <TH></TH>
                 </TR>
-              )
-            })}
-          </TBody>
-        </TableComponent>
-      </Table>
+              </THead>
+              <TBody>
+                {tableData && tableData.map((obj, index: number) => {
+                  const firstLetter = obj.contact_name.split(' ')[0][0];
+                  const secondLetter = obj.contact_name.split(' ')[1][0];
+                  return (
+                    <TR key={index}>
+                      <TDAvatar>
+                        <Avatar color={colors[index]} firstLetter={firstLetter} secondLetter={secondLetter} />
+                      </TDAvatar>
+                      {Object.values(obj).map((value, valIndex) => (
+                        <TD
+                          key={valIndex}
+                          isColored={valIndex === 0}
+                          onClick={() => goTo(id![index], valIndex)}
+                        >
+                          {value}
+                        </TD>
+                      ))}
+                    </TR>
+                  );
+                })}
+              </TBody>
+            </TableComponent>
+          </Table>
+      }
     </Wrapper>
   );
 };
@@ -121,6 +143,7 @@ const THead = styled.thead`
   & > tr:nth-child(odd) {
     background-color: #fff;
   }
+
   & > tr:nth-child(odd):hover {
     background-color: #fff;
   }
@@ -130,10 +153,12 @@ const TR = styled.tr`
   &:hover {
     background-color: rgb(243 244 246);
   }
-  &:nth-child(odd){
+
+  &:nth-child(odd) {
     background-color: rgb(249 250 251)
   }
-  &:nth-child(odd):hover{
+
+  &:nth-child(odd):hover {
     background-color: rgb(243 244 246);
   }
 `;
@@ -142,6 +167,7 @@ const TH = styled.th`
   padding: 8px 12px;
   text-align: left;
   height: 40px;
+  user-select: text;
 `;
 
 const TBody = styled.tbody``;
@@ -156,8 +182,9 @@ const TDAvatar = styled.td`
 const TD = styled.td<{ isColored: boolean }>`
   padding: 8px 12px;
   height: 40px;
-  color: ${({isColored}) => isColored && 'rgb(37 99 235)'};
-  cursor: ${({isColored}) => isColored && 'pointer'};
+  color: ${({ isColored }) => isColored && 'rgb(37 99 235)'};
+  cursor: ${({ isColored }) => isColored && 'pointer'};
+  user-select: text;
 `;
 
 export default Customers;

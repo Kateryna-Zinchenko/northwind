@@ -1,23 +1,41 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import RedoIcon from '@mui/icons-material/Redo';
-import { deleteKeys } from '../../../utils/deleteKeys';
+import { deleteKeys, getRandomColor } from '../../../utils/deleteKeys';
 import Avatar from '../../shared/Avatar';
 import { useNavigate } from 'react-router-dom';
 import { AppDispatch, Path } from '../../../App';
 import { getSuppliers } from '../../../store/actions/user';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectSuppliers } from '../../../store/selectors/user';
-import { ISupplier } from '../../../store/reducers/common';
+import { selectState, selectSuppliers } from '../../../store/selectors/user';
+import { ISupplier, RequestState } from '../../../store/reducers/common';
 
 const Suppliers = () => {
+  const [colors, setColors] = useState<string[]>([]);
+
   const dispatch = useDispatch<AppDispatch>();
   const nav = useNavigate();
 
   const suppliers = useSelector(selectSuppliers);
+  const state = useSelector(selectState);
 
   useEffect(() => {
-    dispatch(getSuppliers());
+    const storedColors = localStorage.getItem('suppliers_colors');
+    if (storedColors) {
+      setColors(JSON.parse(storedColors));
+    } else {
+      if (suppliers != null) {
+        const initialColors = Array.from({ length: suppliers.length }, () => getRandomColor());
+        localStorage.setItem('suppliers_colors', JSON.stringify(initialColors));
+        setColors(initialColors);
+      }
+    }
+  }, [suppliers]);
+
+  useEffect(() => {
+    if (!suppliers) {
+      dispatch(getSuppliers());
+    }
   }, [])
 
   const tableData = suppliers?.map((obj) => {
@@ -38,46 +56,70 @@ const Suppliers = () => {
 
   return (
     <Wrapper className='suppliers'>
-      <Table>
-        <Header>
-          <Title>Suppliers</Title>
-          <RedoIcon />
-        </Header>
-        <TableComponent>
-          <THead>
-            <TR>
-              <TH></TH>
-              <TH>Company</TH>
-              <TH>Contact</TH>
-              <TH>Title</TH>
-              <TH>City</TH>
-              <TH>Country</TH>
-              <TH></TH>
-            </TR>
-          </THead>
-          <TBody>
-            {tableData && tableData.map((obj: ISupplier, index: number) => {
-              const firstLetter = obj.contact_name.split(' ')[0][0]
-              const secondLetter = obj.contact_name.split(' ')[1][0]
-              return (
-                <TR key={index}>
-                  <TDAvatar>
-                    <Avatar firstLetter={firstLetter} secondLetter={secondLetter} />
-                  </TDAvatar>
-                  {Object.values(obj).map((value: string, valIndex) => (
-                    <TD
-                      key={valIndex}
-                      isColored={valIndex === 0}
-                      onClick={() => goTo(`${index + 1}`, valIndex)}>
-                      {value}
-                    </TD>
-                  ))}
+      {
+        state === RequestState.LOADING ? <div>Loading...</div> :
+          <Table>
+            <Header>
+              <Title>Suppliers</Title>
+              <RedoIcon />
+            </Header>
+            <TableComponent>
+              <THead>
+                <TR>
+                  <TH></TH>
+                  <TH>Company</TH>
+                  <TH>Contact</TH>
+                  <TH>Title</TH>
+                  <TH>City</TH>
+                  <TH>Country</TH>
+                  <TH></TH>
                 </TR>
-              )
-            })}
-          </TBody>
-        </TableComponent>
-      </Table>
+              </THead>
+              <TBody>
+                {/*{*/}
+                {/*  tableData && tableData.map((obj: ISupplier, index: number) => {*/}
+                {/*  const firstLetter = obj.contact_name.split(' ')[0][0]*/}
+                {/*  const secondLetter = obj.contact_name.split(' ')[1][0]*/}
+                {/*  return (*/}
+                {/*    <TR key={index}>*/}
+                {/*      <TDAvatar>*/}
+                {/*        <Avatar color={colors[index]} firstLetter={firstLetter} secondLetter={secondLetter} />*/}
+                {/*      </TDAvatar>*/}
+                {/*      {Object.values(obj).map((value: string, valIndex) => (*/}
+                {/*        <TD*/}
+                {/*          key={valIndex}*/}
+                {/*          isColored={valIndex === 0}*/}
+                {/*          onClick={() => goTo(`${index + 1}`, valIndex)}>*/}
+                {/*          {value}*/}
+                {/*        </TD>*/}
+                {/*      ))}*/}
+                {/*    </TR>*/}
+                {/*  )*/}
+                {/*})}*/}
+                {
+                  tableData && tableData.map((obj: ISupplier, index: number) => {
+                  const firstLetter = obj.contact_name.split(' ')[0][0]
+                  const secondLetter = obj.contact_name.split(' ')[1][0]
+                  return (
+                    <TR key={index}>
+                      <TDAvatar>
+                        <Avatar color={colors[index]} firstLetter={firstLetter} secondLetter={secondLetter} />
+                      </TDAvatar>
+                      {Object.values(obj).map((value: string, valIndex) => (
+                        <TD
+                          key={valIndex}
+                          isColored={valIndex === 0}
+                          onClick={() => goTo(`${index + 1}`, valIndex)}>
+                          {value}
+                        </TD>
+                      ))}
+                    </TR>
+                  )
+                })}
+              </TBody>
+            </TableComponent>
+          </Table>
+      }
     </Wrapper>
   );
 };
@@ -136,6 +178,7 @@ const TH = styled.th`
   padding: 8px 12px;
   text-align: left;
   height: 40px;
+  user-select: text;
 `;
 
 const TBody = styled.tbody``;
@@ -152,6 +195,7 @@ const TD = styled.td<{ isColored: boolean }>`
   height: 40px;
   color: ${({isColored}) => isColored && 'rgb(37 99 235)'};
   cursor: ${({isColored}) => isColored && 'pointer'};
+  user-select: text;
 `;
 
 export default Suppliers;

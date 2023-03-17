@@ -3,19 +3,24 @@ import styled from 'styled-components';
 import BallotIcon from '@mui/icons-material/Ballot';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppDispatch, Path } from '../../../App';
-import { selectSupplier } from '../../../store/selectors/user';
+import { selectState, selectSupplier } from '../../../store/selectors/user';
 import { useDispatch, useSelector } from 'react-redux';
 import { getSupplierInfo } from '../../../store/actions/user';
+import { RequestState } from '../../../store/reducers/common';
 
 const SupplierInfo = () => {
   const nav = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
+
   const supplier = useSelector(selectSupplier);
+  const state = useSelector(selectState);
 
   const id = Number(useParams().id);
 
   useEffect(() => {
-    dispatch(getSupplierInfo(id));
+    if (!supplier) {
+      dispatch(getSupplierInfo(id));
+    }
   }, [])
 
   const infoLeftTitles = ['Company Name', 'Contact Name', 'Contact Title', 'Address', 'City'];
@@ -48,44 +53,47 @@ const SupplierInfo = () => {
 
   return (
     <Wrapper>
-      <Table>
-        <Header>
-          <BallotIcon />
-          <Title>Supplier information</Title>
-        </Header>
-        <InfoWrap>
-          <LeftWrap>
-            {
-              infoLeftTitles.map((title, index: number) => {
-                const value: any = Object.values(leftData())[index];
-                return (
-                  <Info key={index}>
-                    <InfoTitle>{title}</InfoTitle>
-                    <InfoValue>{value}</InfoValue>
-                  </Info>
-                )
-              })}
-          </LeftWrap>
-          <RightWrap>
-            {
-              infoRightTitles.map((title, index: number) => {
-                const value: any = Object.values(rightData())[index];
-                if (value == null) {
-                  title = ''
-                }
-                return (
-                  <Info key={index}>
-                    <InfoTitle>{title}</InfoTitle>
-                    <InfoValue>{value}</InfoValue>
-                  </Info>
-                )
-              })}
-          </RightWrap>
-        </InfoWrap>
-        <ButtonWrapper>
-          <Button onClick={onButtonClick}>Go back</Button>
-        </ButtonWrapper>
-      </Table>
+      {
+        state === RequestState.LOADING ? <div>Loading...</div> :
+          <Table>
+            <Header>
+              <BallotIcon />
+              <Title>Supplier information</Title>
+            </Header>
+            <InfoWrap>
+              <LeftWrap>
+                {
+                  infoLeftTitles.map((title, index: number) => {
+                    const value: any = Object.values(leftData())[index];
+                    return (
+                      <Info key={index}>
+                        <InfoTitle>{title}</InfoTitle>
+                        <InfoValue>{value}</InfoValue>
+                      </Info>
+                    )
+                  })}
+              </LeftWrap>
+              <RightWrap>
+                {
+                  infoRightTitles.map((title, index: number) => {
+                    const value: any = Object.values(rightData())[index];
+                    if (value == null) {
+                      title = ''
+                    }
+                    return (
+                      <Info key={index}>
+                        <InfoTitle>{title}</InfoTitle>
+                        <InfoValue>{value}</InfoValue>
+                      </Info>
+                    )
+                  })}
+              </RightWrap>
+            </InfoWrap>
+            <ButtonWrapper>
+              <Button onClick={onButtonClick}>Go back</Button>
+            </ButtonWrapper>
+          </Table>
+      }
     </Wrapper>
   );
 };
@@ -137,10 +145,12 @@ const InfoTitle = styled.div`
   font-weight: 700;
   line-height: 1.5rem;
   margin: 0 0 8px;
+  user-select: text;
 `;
 
 const InfoValue = styled.div`
   line-height: 1.5rem;
+  user-select: text;
 `;
 
 const RightWrap = styled.div`

@@ -6,17 +6,20 @@ import { AppDispatch, Path } from '../../../App';
 import { useNavigate } from 'react-router-dom';
 import { getProducts } from '../../../store/actions/user';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectProducts } from '../../../store/selectors/user';
-import { IProduct } from '../../../store/reducers/common';
+import { selectProducts, selectState } from '../../../store/selectors/user';
+import { IProduct, RequestState } from '../../../store/reducers/common';
 
 const Products = () => {
   const nav = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
   const products = useSelector(selectProducts);
+  const state = useSelector(selectState);
 
   useEffect(() => {
-    dispatch(getProducts());
+    if (!products) {
+      dispatch(getProducts());
+    }
   }, [])
 
 
@@ -36,41 +39,44 @@ const Products = () => {
 
   return (
     <Wrapper className='suppliers'>
-      <Table>
-        <Header>
-          <Title>Products</Title>
-          <RedoIcon />
-        </Header>
-        <TableComponent>
-          <THead>
-            <TR>
-              <TH>Name</TH>
-              <TH>Qt per unit</TH>
-              <TH>Price</TH>
-              <TH>Stock</TH>
-              <TH>Orders</TH>
-              <TH></TH>
-            </TR>
-          </THead>
-          <TBody>
-            {tableData && tableData.map((obj: IProduct, index: number) => {
-              return (
-                <TR key={index}>
-                  {Object.values(obj).map((value, valIndex) => (
-                    <TD
-                      key={valIndex}
-                      isColored={valIndex === 0}
-                      onClick={() => goTo(`${index + 1}`, valIndex)}
-                    >
-                      {value}
-                    </TD>
-                  ))}
+      {
+        state === RequestState.LOADING ? <div>Loading...</div> :
+          <Table>
+            <Header>
+              <Title>Products</Title>
+              <RedoIcon />
+            </Header>
+            <TableComponent>
+              <THead>
+                <TR>
+                  <TH>Name</TH>
+                  <TH>Qt per unit</TH>
+                  <TH>Price</TH>
+                  <TH>Stock</TH>
+                  <TH>Orders</TH>
+                  <TH></TH>
                 </TR>
-              )
-            })}
-          </TBody>
-        </TableComponent>
-      </Table>
+              </THead>
+              <TBody>
+                {tableData && tableData.map((obj: IProduct, index: number) => {
+                  return (
+                    <TR key={index}>
+                      {Object.values(obj).map((value, valIndex) => (
+                        <TD
+                          key={valIndex}
+                          isColored={valIndex === 0}
+                          onClick={() => goTo(`${index + 1}`, valIndex)}
+                        >
+                          {value}
+                        </TD>
+                      ))}
+                    </TR>
+                  )
+                })}
+              </TBody>
+            </TableComponent>
+          </Table>
+      }
     </Wrapper>
   );
 };
@@ -129,6 +135,7 @@ const TH = styled.th`
   padding: 8px 12px;
   text-align: left;
   height: 40px;
+  user-select: text;
 `;
 
 const TBody = styled.tbody``;
@@ -138,6 +145,7 @@ const TD = styled.td<{ isColored: boolean }>`
   height: 40px;
   color: ${({isColored}) => isColored && 'rgb(37 99 235)'};
   cursor: ${({isColored}) => isColored && 'pointer'};
+  user-select: text;
 `;
 
 export default Products;

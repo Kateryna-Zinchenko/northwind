@@ -4,19 +4,24 @@ import BallotIcon from '@mui/icons-material/Ballot';
 import { deleteKeys } from '../../../utils/deleteKeys';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppDispatch, Path } from '../../../App';
-import { selectEmployee, selectProduct } from '../../../store/selectors/user';
+import { selectEmployee, selectProduct, selectState } from '../../../store/selectors/user';
 import { getEmployeeInfo, getProductInfo } from '../../../store/actions/user';
 import { useDispatch, useSelector } from 'react-redux';
+import { RequestState } from '../../../store/reducers/common';
 
 const EmployeesInfo = () => {
   const nav = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
+
   const employee = useSelector(selectEmployee);
+  const state = useSelector(selectState);
 
   const id = Number(useParams().id);
 
   useEffect(() => {
-    dispatch(getEmployeeInfo(id));
+    if (!employee) {
+      dispatch(getEmployeeInfo(id));
+    }
   }, [])
 
   const infoLeftTitles = ['Name', 'Title', 'Title Of Courtesy', 'Birth Date', 'Hire Date', 'Address', 'City'];
@@ -58,49 +63,52 @@ const EmployeesInfo = () => {
 
   return (
     <Wrapper>
-      <Table>
-        <Header>
-          <BallotIcon />
-          <Title>Employee information</Title>
-        </Header>
-        <InfoWrap>
-          <LeftWrap>
-            {
-              infoLeftTitles.map((title, index: number) => {
-                const value: any = Object.values(leftData())[index];
-                return (
-                  <Info key={index}>
-                    <InfoTitle>{title}</InfoTitle>
-                    <InfoValue>{value}</InfoValue>
-                  </Info>
-                )
-              })}
-          </LeftWrap>
-          <RightWrap>
-            {
-              infoRightTitles.map((title, index: number) => {
-                const value: any = Object.values(rightData())[index];
-                if (value === null || value === ' ') {
-                  title = ''
-                }
-                return (
-                  <Info key={index}>
-                    <InfoTitle>{title}</InfoTitle>
-                    <InfoValue
-                      isColored={index === 5}
-                      onClick={() => goTo(index)}
-                    >
-                      {value}
-                    </InfoValue>
-                  </Info>
-                )
-              })}
-          </RightWrap>
-        </InfoWrap>
-        <ButtonWrapper>
-          <Button onClick={onButtonClick}>Go back</Button>
-        </ButtonWrapper>
-      </Table>
+      {
+        state === RequestState.LOADING ? <div>Loading...</div> :
+          <Table>
+            <Header>
+              <BallotIcon />
+              <Title>Employee information</Title>
+            </Header>
+            <InfoWrap>
+              <LeftWrap>
+                {
+                  infoLeftTitles.map((title, index: number) => {
+                    const value: any = Object.values(leftData())[index];
+                    return (
+                      <Info key={index}>
+                        <InfoTitle>{title}</InfoTitle>
+                        <InfoValue>{value}</InfoValue>
+                      </Info>
+                    )
+                  })}
+              </LeftWrap>
+              <RightWrap>
+                {
+                  infoRightTitles.map((title, index: number) => {
+                    const value: any = Object.values(rightData())[index];
+                    if (value === null || value === ' ') {
+                      title = ''
+                    }
+                    return (
+                      <Info key={index}>
+                        <InfoTitle>{title}</InfoTitle>
+                        <InfoValue
+                          isColored={index === 5}
+                          onClick={() => goTo(index)}
+                        >
+                          {value}
+                        </InfoValue>
+                      </Info>
+                    )
+                  })}
+              </RightWrap>
+            </InfoWrap>
+            <ButtonWrapper>
+              <Button onClick={onButtonClick}>Go back</Button>
+            </ButtonWrapper>
+          </Table>
+      }
     </Wrapper>
   );
 };
@@ -152,12 +160,14 @@ const InfoTitle = styled.div`
   font-weight: 700;
   line-height: 1.5rem;
   margin: 0 0 8px;
+  user-select: text;
 `;
 
 const InfoValue = styled.div<{ isColored?: boolean }>`
   line-height: 1.5rem;
   color: ${({isColored}) => isColored && 'rgb(37 99 235)'};
   cursor: ${({isColored}) => isColored && 'pointer'};
+  user-select: text;
 `;
 
 const RightWrap = styled.div`

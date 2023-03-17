@@ -1,6 +1,6 @@
 import { createSelector, Selector } from 'reselect';
 import { State } from '../index';
-import { ICustomer, IEmployee, IOrder, IProduct, ISupplier } from '../reducers/common';
+import { ICustomer, IEmployee, IOrder, IProduct, IStats, ISupplier, RequestState } from '../reducers/common';
 
 
 const selectUserReducer = (state: State) => state.userReducer;
@@ -60,12 +60,22 @@ export const selectCustomer: Selector<State, ICustomer | null> = createSelector(
   ({ customer }) => customer,
 );
 
-export const selectSearchCustomers: Selector<State, any> = createSelector(
+export const selectSearchResults: Selector<State, any> = createSelector(
   selectUserReducer,
-  ({ searchCustomers }) => searchCustomers,
+  ({ searchResults }) => searchResults,
 );
 
-export const selectSearchProducts: Selector<State, any> = createSelector(
+export const selectSearchCategory: Selector<State, any> = createSelector(
   selectUserReducer,
-  ({ searchProducts }) => searchProducts,
+  ({ searchCategory }) => searchCategory,
+);
+
+export const selectStats: Selector<State, IStats[] | null> = createSelector(
+  selectUserReducer,
+  ({ stats }) => stats,
+);
+
+export const selectState: Selector<State, RequestState> = createSelector(
+  selectUserReducer,
+  ({ state }) => state,
 );
