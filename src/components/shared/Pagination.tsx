@@ -24,10 +24,8 @@ const Pagination = ({
     setCurrentPage(page);
   }
 
-  console.log(pages);
-
   return (
-    <Wrapper className='pagination'>
+    <Wrapper>
       <div>
       {pages.map((page, index) => {
         return (

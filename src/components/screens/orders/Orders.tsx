@@ -8,7 +8,7 @@ import { getOrders } from '../../../store/actions/user';
 import { useDispatch, useSelector } from 'react-redux';
 import { date, price } from '../../../utils/deleteKeys';
 import { RequestState } from '../../../store/reducers/common';
-import Pagination from '../../shared/Pagination';
+import Pagination2 from '../../shared/Pagination2';
 
 const Orders = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -35,6 +35,8 @@ const Orders = () => {
       ship_country: obj.ship_country,
     };
   });
+
+  const PageSize = 20;
 
   const postsPerPage = 20;
   const lastPostIndex = currentPage * postsPerPage;
@@ -94,11 +96,17 @@ const Orders = () => {
             </TableComponent>
             {
               tableData &&
-              <Pagination
-                totalPosts={tableData.length}
-                postsPerPage={postsPerPage}
-                setCurrentPage={setCurrentPage}
+              // <Pagination
+              //   totalPosts={tableData.length}
+              //   postsPerPage={postsPerPage}
+              //   setCurrentPage={setCurrentPage}
+              //   currentPage={currentPage}
+              // />
+              <Pagination2
                 currentPage={currentPage}
+                totalCount={tableData.length}
+                pageSize={PageSize}
+                onPageChange={(page: any) => setCurrentPage(page)}
               />
             }
           </Table>
