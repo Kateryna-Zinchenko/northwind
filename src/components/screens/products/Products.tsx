@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import RedoIcon from '@mui/icons-material/Redo';
 import { deleteKeys } from '../../../utils/deleteKeys';
@@ -8,8 +8,11 @@ import { getProducts } from '../../../store/actions/user';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectProducts, selectState } from '../../../store/selectors/user';
 import { IProduct, RequestState } from '../../../store/reducers/common';
+import Pagination from '../../shared/Pagination';
 
 const Products = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+
   const nav = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
@@ -28,6 +31,11 @@ const Products = () => {
     object.unit_price = `$${object.unit_price}`;
     return data;
   });
+
+  const postsPerPage = 20;
+  const lastPostIndex = currentPage * postsPerPage;
+  const firstPostIndex = lastPostIndex - postsPerPage;
+  const currentPosts = tableData?.slice(firstPostIndex, lastPostIndex);
 
   const goTo = (id: string, index: number) => {
     if (index === 0) {
@@ -56,7 +64,7 @@ const Products = () => {
                 </TR>
               </THead>
               <TBody>
-                {tableData && tableData.map((obj: IProduct, index: number) => {
+                {currentPosts && currentPosts.map((obj: IProduct, index: number) => {
                   return (
                     <TR key={index}>
                       {Object.values(obj).map((value, valIndex) => (
@@ -73,6 +81,15 @@ const Products = () => {
                 })}
               </TBody>
             </TableComponent>
+            {
+              tableData &&
+              <Pagination
+                totalPosts={tableData.length}
+                postsPerPage={postsPerPage}
+                setCurrentPage={setCurrentPage}
+                currentPage={currentPage}
+              />
+            }
           </Table>
       }
     </Wrapper>

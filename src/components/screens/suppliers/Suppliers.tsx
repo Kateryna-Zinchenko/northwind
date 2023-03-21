@@ -9,9 +9,11 @@ import { getSuppliers } from '../../../store/actions/user';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectState, selectSuppliers } from '../../../store/selectors/user';
 import { ISupplier, RequestState } from '../../../store/reducers/common';
+import Pagination from '../../shared/Pagination';
 
 const Suppliers = () => {
   const [colors, setColors] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const dispatch = useDispatch<AppDispatch>();
   const nav = useNavigate();
@@ -36,13 +38,17 @@ const Suppliers = () => {
     dispatch(getSuppliers());
   }, []);
 
-  const tableData = suppliers?.map((obj) => {
+  const tableData = suppliers && suppliers.map((obj) => {
     const array = ['supplier_id', 'address', 'region', 'postal_code', 'phone', 'fax', 'homepage'];
     const object = { ...obj };
     const data = deleteKeys(object, array);
     return data;
   });
 
+  const postsPerPage = 20;
+  const lastPostIndex = currentPage * postsPerPage;
+  const firstPostIndex = lastPostIndex - postsPerPage;
+  const currentPosts = tableData?.slice(firstPostIndex, lastPostIndex);
 
   const goTo = (id: string, index: number) => {
     if (index === 0) {
@@ -50,73 +56,62 @@ const Suppliers = () => {
     }
   };
 
-  const randomColor = Math.floor(Math.random() * 16777215).toString(16);
-
   return (
     <Wrapper className='suppliers'>
       {
         state === RequestState.LOADING ? <div>Loading...</div> :
-          <Table>
-            <Header>
-              <Title>Suppliers</Title>
-              <RedoIcon />
-            </Header>
-            <TableComponent>
-              <THead>
-                <TR>
-                  <TH></TH>
-                  <TH>Company</TH>
-                  <TH>Contact</TH>
-                  <TH>Title</TH>
-                  <TH>City</TH>
-                  <TH>Country</TH>
-                  <TH></TH>
-                </TR>
-              </THead>
-              <TBody>
-                {/*{*/}
-                {/*  tableData && tableData.map((obj: ISupplier, index: number) => {*/}
-                {/*  const firstLetter = obj.contact_name.split(' ')[0][0]*/}
-                {/*  const secondLetter = obj.contact_name.split(' ')[1][0]*/}
-                {/*  return (*/}
-                {/*    <TR key={index}>*/}
-                {/*      <TDAvatar>*/}
-                {/*        <Avatar color={colors[index]} firstLetter={firstLetter} secondLetter={secondLetter} />*/}
-                {/*      </TDAvatar>*/}
-                {/*      {Object.values(obj).map((value: string, valIndex) => (*/}
-                {/*        <TD*/}
-                {/*          key={valIndex}*/}
-                {/*          isColored={valIndex === 0}*/}
-                {/*          onClick={() => goTo(`${index + 1}`, valIndex)}>*/}
-                {/*          {value}*/}
-                {/*        </TD>*/}
-                {/*      ))}*/}
-                {/*    </TR>*/}
-                {/*  )*/}
-                {/*})}*/}
-                {
-                  tableData && tableData.map((obj: ISupplier, index: number) => {
-                    const firstLetter = obj.contact_name.split(' ')[0][0];
-                    const secondLetter = obj.contact_name.split(' ')[1][0];
-                    return (
-                      <TR key={index}>
-                        <TDAvatar>
-                          <Avatar color={colors[index]} firstLetter={firstLetter} secondLetter={secondLetter} />
-                        </TDAvatar>
-                        {Object.values(obj).map((value: string, valIndex) => (
-                          <TD
-                            key={valIndex}
-                            isColored={valIndex === 0}
-                            onClick={() => goTo(`${index + 1}`, valIndex)}>
-                            {value}
-                          </TD>
-                        ))}
-                      </TR>
-                    );
-                  })}
-              </TBody>
-            </TableComponent>
-          </Table>
+          <>
+            <Table>
+              <Header>
+                <Title>Suppliers</Title>
+                <RedoIcon />
+              </Header>
+              <TableComponent>
+                <THead>
+                  <TR>
+                    <TH></TH>
+                    <TH>Company</TH>
+                    <TH>Contact</TH>
+                    <TH>Title</TH>
+                    <TH>City</TH>
+                    <TH>Country</TH>
+                    <TH></TH>
+                  </TR>
+                </THead>
+                <TBody>
+                  {
+                    currentPosts && currentPosts.map((obj: ISupplier, index: number) => {
+                      const firstLetter = obj.contact_name.split(' ')[0][0].toUpperCase();
+                      const secondLetter = obj.contact_name.split(' ')[1][0].toUpperCase();
+                      return (
+                        <TR key={index}>
+                          <TDAvatar>
+                            <Avatar color={colors[index]} firstLetter={firstLetter} secondLetter={secondLetter} />
+                          </TDAvatar>
+                          {Object.values(obj).map((value: string, valIndex) => (
+                            <TD
+                              key={valIndex}
+                              isColored={valIndex === 0}
+                              onClick={() => goTo(`${index + 1}`, valIndex)}>
+                              {value}
+                            </TD>
+                          ))}
+                        </TR>
+                      );
+                    })}
+                </TBody>
+              </TableComponent>
+              {
+                tableData &&
+                <Pagination
+                  totalPosts={tableData.length}
+                  postsPerPage={postsPerPage}
+                  setCurrentPage={setCurrentPage}
+                  currentPage={currentPage}
+                />
+              }
+            </Table>
+          </>
       }
     </Wrapper>
   );

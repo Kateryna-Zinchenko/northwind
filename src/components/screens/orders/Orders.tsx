@@ -8,8 +8,13 @@ import { getOrders } from '../../../store/actions/user';
 import { useDispatch, useSelector } from 'react-redux';
 import { date, getRandomColor, price } from '../../../utils/deleteKeys';
 import { RequestState } from '../../../store/reducers/common';
+import Pagination from '../../shared/Pagination';
+import Pages from '../../shared/Pages';
+import { usePagination } from '../../../hooks/usePagination';
 
 const Orders = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+
   const nav = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
@@ -32,6 +37,11 @@ const Orders = () => {
       ship_country: obj.ship_country,
     };
   });
+
+  const postsPerPage = 20;
+  const lastPostIndex = currentPage * postsPerPage;
+  const firstPostIndex = lastPostIndex - postsPerPage;
+  const currentPosts = tableData?.slice(firstPostIndex, lastPostIndex);
 
   const id = orders?.map((obj) => {
     return obj.order_id;
@@ -67,7 +77,7 @@ const Orders = () => {
                 </TR>
               </THead>
               <TBody>
-                {tableData && tableData.map((obj, index: number) => {
+                {currentPosts && currentPosts.map((obj, index: number) => {
                   return (
                     <TR key={index}>
                       {Object.values(obj).map((value, valIndex) => (
@@ -84,6 +94,15 @@ const Orders = () => {
                 })}
               </TBody>
             </TableComponent>
+            {
+              tableData &&
+              <Pagination
+                totalPosts={tableData.length}
+                postsPerPage={postsPerPage}
+                setCurrentPage={setCurrentPage}
+                currentPage={currentPage}
+              />
+            }
           </Table>
       }
     </Wrapper>

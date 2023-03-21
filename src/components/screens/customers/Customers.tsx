@@ -9,9 +9,11 @@ import { getCustomers } from '../../../store/actions/user';
 import { useDispatch, useSelector } from 'react-redux';
 import { ICustomer, RequestState } from '../../../store/reducers/common';
 import { getRandomColor } from '../../../utils/deleteKeys';
+import Pagination from '../../shared/Pagination';
 
 const Customers = () => {
   const [colors, setColors] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const nav = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
@@ -46,6 +48,11 @@ const Customers = () => {
     };
   });
 
+  const postsPerPage = 20;
+  const lastPostIndex = currentPage * postsPerPage;
+  const firstPostIndex = lastPostIndex - postsPerPage;
+  const currentPosts = tableData?.slice(firstPostIndex, lastPostIndex);
+
   const id = customers?.map((obj: ICustomer) => {
     return obj.customer_id;
   });
@@ -78,9 +85,9 @@ const Customers = () => {
                 </TR>
               </THead>
               <TBody>
-                {tableData && tableData.map((obj, index: number) => {
-                  const firstLetter = obj.contact_name.split(' ')[0][0];
-                  const secondLetter = obj.contact_name.split(' ')[1][0];
+                {currentPosts && currentPosts.map((obj, index: number) => {
+                  const firstLetter = obj.contact_name.split(' ')[0][0].toUpperCase() ;
+                  const secondLetter = obj.contact_name.split(' ')[1][0].toUpperCase() ;
                   return (
                     <TR key={index}>
                       <TDAvatar>
@@ -100,6 +107,15 @@ const Customers = () => {
                 })}
               </TBody>
             </TableComponent>
+            {
+              tableData &&
+              <Pagination
+                totalPosts={tableData.length}
+                postsPerPage={postsPerPage}
+                setCurrentPage={setCurrentPage}
+                currentPage={currentPage}
+              />
+            }
           </Table>
       }
     </Wrapper>

@@ -9,9 +9,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectEmployees, selectState } from '../../../store/selectors/user';
 import { RequestState } from '../../../store/reducers/common';
 import { getRandomColor } from '../../../utils/deleteKeys';
+import Pagination from '../../shared/Pagination';
 
 const Employees = () => {
   const [colors, setColors] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const nav = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
@@ -46,6 +48,11 @@ const Employees = () => {
     };
   });
 
+  const postsPerPage = 20;
+  const lastPostIndex = currentPage * postsPerPage;
+  const firstPostIndex = lastPostIndex - postsPerPage;
+  const currentPosts = tableData?.slice(firstPostIndex, lastPostIndex);
+
   const goTo = (id: string, index: number) => {
     if (index === 0) {
       nav(`${Path.Employees}/${id}`);
@@ -77,9 +84,9 @@ const Employees = () => {
                 </TR>
               </THead>
               <TBody>
-                {tableData && tableData.map((obj, index: number) => {
-                  const firstLetter = obj.full_name.split(' ')[0][0];
-                  const secondLetter = obj.full_name.split(' ')[1][0];
+                {currentPosts && currentPosts.map((obj, index: number) => {
+                  const firstLetter = obj.full_name.split(' ')[0][0].toUpperCase() ;
+                  const secondLetter = obj.full_name.split(' ')[1][0].toUpperCase() ;
                   return (
                     <TR key={index}>
                       <TDAvatar>
@@ -98,6 +105,15 @@ const Employees = () => {
                 })}
               </TBody>
             </TableComponent>
+            {
+              tableData &&
+              <Pagination
+                totalPosts={tableData.length}
+                postsPerPage={postsPerPage}
+                setCurrentPage={setCurrentPage}
+                currentPage={currentPage}
+              />
+            }
           </Table>
       }
     </Wrapper>
