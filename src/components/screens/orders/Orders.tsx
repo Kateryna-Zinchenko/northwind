@@ -6,11 +6,9 @@ import { useNavigate } from 'react-router-dom';
 import { selectOrders, selectState } from '../../../store/selectors/user';
 import { getOrders } from '../../../store/actions/user';
 import { useDispatch, useSelector } from 'react-redux';
-import { date, getRandomColor, price } from '../../../utils/deleteKeys';
+import { date, price } from '../../../utils/deleteKeys';
 import { RequestState } from '../../../store/reducers/common';
 import Pagination from '../../shared/Pagination';
-import Pages from '../../shared/Pages';
-import { usePagination } from '../../../hooks/usePagination';
 
 const Orders = () => {
   const [currentPage, setCurrentPage] = useState(1);
