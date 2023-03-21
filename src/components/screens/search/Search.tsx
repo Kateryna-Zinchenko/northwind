@@ -24,6 +24,10 @@ const Search = () => {
   const searchCategory = useSelector(selectSearchCategory);
   const state = useSelector(selectState);
 
+  useEffect(() => {
+    dispatch(userActions.setSearchResults(null));
+  }, [])
+
   const id = searchResults?.map((obj: any) => {
     if (searchCategory === SearchGroup.Products) {
       return obj.product_id;
