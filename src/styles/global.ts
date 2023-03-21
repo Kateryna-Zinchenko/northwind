@@ -21,6 +21,7 @@ export const GlobalStyle = createGlobalStyle`
     min-height: 100vh;
     max-width: 100vw;
     width: 100vw;
+    overflow-x: hidden;
   }
   div {
     user-select: none;

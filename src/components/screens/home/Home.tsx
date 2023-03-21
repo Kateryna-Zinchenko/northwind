@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import Logo from '../../../../public/logo';
 
 const Home: React.FC = () => {
   return (
@@ -39,6 +38,7 @@ const Home: React.FC = () => {
 
 const Wrapper = styled.main`
   padding: 48px;
+  margin: 56px 0 0;
 `;
 
 const Title = styled.h1`

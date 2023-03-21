@@ -1,67 +1,75 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { selectLog, selectMetrics } from '../../../store/selectors/user';
+import { selectLog, selectMetrics, selectState } from '../../../store/selectors/user';
 import { AppDispatch } from '../../../App';
 import { getMetrics } from '../../../store/actions/user';
 import { State } from '../../../store';
+import { RequestState } from '../../../store/reducers/common';
 
 const Dashboard = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const log = useSelector(selectLog);
   const metrics = useSelector(selectMetrics);
+  const state = useSelector(selectState);
 
-  const queries = useSelector((state: State) => state.userReducer.queries)
-  const results = useSelector((state: State) => state.userReducer.results)
-  const select = useSelector((state: State) => state.userReducer.select)
-  const selectWhere = useSelector((state: State) => state.userReducer.selectWhere)
-  const selectLeftJoin = useSelector((state: State) => state.userReducer.selectLeftJoin)
+  const queries = useSelector((state: State) => state.userReducer.queries);
+  const results = useSelector((state: State) => state.userReducer.results);
+  const select = useSelector((state: State) => state.userReducer.select);
+  const selectWhere = useSelector((state: State) => state.userReducer.selectWhere);
+  const selectLeftJoin = useSelector((state: State) => state.userReducer.selectLeftJoin);
 
   useEffect(() => {
     dispatch(getMetrics());
-  }, [])
+  }, []);
 
   return (
     <MainWrapper>
-      <Metrics>
-        <Div>
-          <Title>Worker</Title>
-          <Paragraph>Colo: {metrics?.colo}</Paragraph>
-          <Paragraph>Country: {metrics?.country}</Paragraph>
-        </Div>
-        <Div>
-          <Title>SQL Metrics</Title>
-          <Paragraph>Query count: {queries}</Paragraph>
-          <Paragraph>Results count: {results}</Paragraph>
-          <Paragraph># SELECT: {select}</Paragraph>
-          <Paragraph># SELECT WHERE: {selectWhere}</Paragraph>
-          <Paragraph># SELECT LEFT JOIN: {selectLeftJoin}</Paragraph>
-        </Div>
-      </Metrics>
-      <WrapLog>
-        <Title>Activity log</Title>
-        <ParagraphLog>Explore the app and see metrics here</ParagraphLog>
-        {
-          log && log.map((obj: any, index: number) => (
-            <Div key={index}>
-              <Info>{obj.duration}</Info>
-              <Log>{obj.query}</Log>
-            </Div>
-          ))
-        }
-      </WrapLog>
+      {
+        state === RequestState.LOADING ? <div>Loading...</div> :
+          <>
+            <Metrics>
+              <Div>
+                <Title>Worker</Title>
+                <Paragraph>Colo: {metrics?.colo}</Paragraph>
+                <Paragraph>Country: {metrics?.country}</Paragraph>
+              </Div>
+              <Div>
+                <Title>SQL Metrics</Title>
+                <Paragraph>Query count: {queries}</Paragraph>
+                <Paragraph>Results count: {results}</Paragraph>
+                <Paragraph># SELECT: {select}</Paragraph>
+                <Paragraph># SELECT WHERE: {selectWhere}</Paragraph>
+                <Paragraph># SELECT LEFT JOIN: {selectLeftJoin}</Paragraph>
+              </Div>
+            </Metrics>
+            <WrapLog>
+              <Title>Activity log</Title>
+              <ParagraphLog>Explore the app and see metrics here</ParagraphLog>
+              {
+                log && log.map((obj: any, index: number) => (
+                  <Div key={index}>
+                    <Info>{obj.duration}</Info>
+                    <Log>{obj.query}</Log>
+                  </Div>
+                ))
+              }
+            </WrapLog>
+          </>
+      }
     </MainWrapper>
   );
 };
 
 const MainWrapper = styled.main`
   padding: 48px;
+  margin: 56px 0 0;
 `;
 
 const Metrics = styled.div`
   display: grid;
-  grid-template-columns: repeat(2,minmax(0,1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
 `;
 
@@ -97,7 +105,7 @@ const Info = styled.p`
 const Log = styled.p`
   font-size: 0.875rem;
   line-height: 1.25rem;
-  font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
   word-break: break-all;
 `;
 

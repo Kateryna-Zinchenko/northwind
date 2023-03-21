@@ -132,6 +132,7 @@ const Search = () => {
 
 const MainWrapper = styled.main`
   padding: 24px;
+  margin: 56px 0 0;
 `;
 
 const Wrapper = styled.div`

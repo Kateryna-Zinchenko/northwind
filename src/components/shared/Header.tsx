@@ -44,7 +44,9 @@ const Header = () => {
 };
 
 const MainWrapper = styled.div`
-  position: relative;
+  position: fixed;
+  width: calc(100% - 240px);
+  z-index: 999;
 `;
 
 const Wrapper = styled.div`

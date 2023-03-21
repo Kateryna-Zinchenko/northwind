@@ -59,8 +59,6 @@ const Employees = () => {
     }
   };
 
-  const randomColor = Math.floor(Math.random() * 16777215).toString(16);
-
   console.log(employees);
   return (
     <Wrapper className='suppliers'>
@@ -122,6 +120,7 @@ const Employees = () => {
 
 const Wrapper = styled.main`
   padding: 24px;
+  margin: 56px 0 0;
 `;
 
 const Table = styled.div`

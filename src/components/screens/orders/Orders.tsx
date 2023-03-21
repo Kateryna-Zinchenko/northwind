@@ -96,12 +96,6 @@ const Orders = () => {
             </TableComponent>
             {
               tableData &&
-              // <Pagination
-              //   totalPosts={tableData.length}
-              //   postsPerPage={postsPerPage}
-              //   setCurrentPage={setCurrentPage}
-              //   currentPage={currentPage}
-              // />
               <Pagination2
                 currentPage={currentPage}
                 totalCount={tableData.length}
@@ -117,6 +111,7 @@ const Orders = () => {
 
 const Wrapper = styled.main`
   padding: 24px;
+  margin: 56px 0 0;
 `;
 
 const Table = styled.div`

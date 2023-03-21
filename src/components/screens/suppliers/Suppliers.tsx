@@ -119,6 +119,7 @@ const Suppliers = () => {
 
 const Wrapper = styled.main`
   padding: 24px;
+  margin: 56px 0 0;
 `;
 
 const Table = styled.div`

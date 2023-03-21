@@ -62,9 +62,10 @@ const App: React.FC = () => (
 
 const Wrapper = styled.div`
   display: flex;
-  min-height: 100vh;
+  max-height: 100vh;
   height: 100%;
   background-color: rgb(31 41 55);
+  overflow-y: hidden;
 `;
 
 const LeftWrapper = styled.div`
@@ -75,6 +76,7 @@ const LeftWrapper = styled.div`
 const RightWrapper = styled.div`
   width: 100%;
   background-color: rgb(249 250 251);
+  overflow-y: scroll;
 `;
 
 export default App;
