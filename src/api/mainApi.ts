@@ -2,7 +2,7 @@ import HttpClient from './httpClient';
 import {
   ICustomer,
   ICustomers,
-  IEmployee, IOrder, IOrders,
+  IEmployee, IMetrics, IOrder, IOrders,
   IProduct,
   IProducts,
   IStats,
@@ -46,9 +46,11 @@ class MainApi extends HttpClient {
 
   public getCustomerInfo = (id: string) => this.instance.get<{ customer: ICustomer, stats: IStats }>(`customers/${id}`);
 
-  public getSearchCust= (filter: string) => this.instance.get<any>(`customers/search/${filter}`);
+  public getSearchCust= (filter: string) => this.instance.get<ICustomers>(`customers/search/${filter}`);
 
   public getSearchProd = (filter: string) => this.instance.get<any>(`/products/search/${filter}`);
+
+  public getMetrics = () => this.instance.get<IMetrics>(`/metrics`);
 }
 
 export default MainApi;

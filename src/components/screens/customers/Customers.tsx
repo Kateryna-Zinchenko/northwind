@@ -32,12 +32,8 @@ const Customers = () => {
     }
   }, [customers]);
 
-  console.log(colors);
-
   useEffect(() => {
-    if (!customers) {
-      dispatch(getCustomers());
-    }
+    dispatch(getCustomers());
   }, []);
 
   const tableData = customers?.map((obj: ICustomer) => {

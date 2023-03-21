@@ -33,14 +33,12 @@ const Suppliers = () => {
   }, [suppliers]);
 
   useEffect(() => {
-    if (!suppliers) {
-      dispatch(getSuppliers());
-    }
-  }, [])
+    dispatch(getSuppliers());
+  }, []);
 
   const tableData = suppliers?.map((obj) => {
     const array = ['supplier_id', 'address', 'region', 'postal_code', 'phone', 'fax', 'homepage'];
-    const object = {...obj};
+    const object = { ...obj };
     const data = deleteKeys(object, array);
     return data;
   });
@@ -52,7 +50,7 @@ const Suppliers = () => {
     }
   };
 
-  const randomColor = Math.floor(Math.random()*16777215).toString(16);
+  const randomColor = Math.floor(Math.random() * 16777215).toString(16);
 
   return (
     <Wrapper className='suppliers'>
@@ -98,24 +96,24 @@ const Suppliers = () => {
                 {/*})}*/}
                 {
                   tableData && tableData.map((obj: ISupplier, index: number) => {
-                  const firstLetter = obj.contact_name.split(' ')[0][0]
-                  const secondLetter = obj.contact_name.split(' ')[1][0]
-                  return (
-                    <TR key={index}>
-                      <TDAvatar>
-                        <Avatar color={colors[index]} firstLetter={firstLetter} secondLetter={secondLetter} />
-                      </TDAvatar>
-                      {Object.values(obj).map((value: string, valIndex) => (
-                        <TD
-                          key={valIndex}
-                          isColored={valIndex === 0}
-                          onClick={() => goTo(`${index + 1}`, valIndex)}>
-                          {value}
-                        </TD>
-                      ))}
-                    </TR>
-                  )
-                })}
+                    const firstLetter = obj.contact_name.split(' ')[0][0];
+                    const secondLetter = obj.contact_name.split(' ')[1][0];
+                    return (
+                      <TR key={index}>
+                        <TDAvatar>
+                          <Avatar color={colors[index]} firstLetter={firstLetter} secondLetter={secondLetter} />
+                        </TDAvatar>
+                        {Object.values(obj).map((value: string, valIndex) => (
+                          <TD
+                            key={valIndex}
+                            isColored={valIndex === 0}
+                            onClick={() => goTo(`${index + 1}`, valIndex)}>
+                            {value}
+                          </TD>
+                        ))}
+                      </TR>
+                    );
+                  })}
               </TBody>
             </TableComponent>
           </Table>
@@ -157,6 +155,7 @@ const THead = styled.thead`
   & > tr:nth-child(odd) {
     background-color: #fff;
   }
+
   & > tr:nth-child(odd):hover {
     background-color: #fff;
   }
@@ -166,10 +165,12 @@ const TR = styled.tr`
   &:hover {
     background-color: rgb(243 244 246);
   }
-  &:nth-child(odd){
+
+  &:nth-child(odd) {
     background-color: rgb(249 250 251)
   }
-  &:nth-child(odd):hover{
+
+  &:nth-child(odd):hover {
     background-color: rgb(243 244 246);
   }
 `;
@@ -193,8 +194,8 @@ const TDAvatar = styled.td`
 const TD = styled.td<{ isColored: boolean }>`
   padding: 8px 12px;
   height: 40px;
-  color: ${({isColored}) => isColored && 'rgb(37 99 235)'};
-  cursor: ${({isColored}) => isColored && 'pointer'};
+  color: ${({ isColored }) => isColored && 'rgb(37 99 235)'};
+  cursor: ${({ isColored }) => isColored && 'pointer'};
   user-select: text;
 `;
 

@@ -19,10 +19,8 @@ const EmployeesInfo = () => {
   const id = Number(useParams().id);
 
   useEffect(() => {
-    if (!employee) {
-      dispatch(getEmployeeInfo(id));
-    }
-  }, [])
+    dispatch(getEmployeeInfo(id));
+  }, []);
 
   const infoLeftTitles = ['Name', 'Title', 'Title Of Courtesy', 'Birth Date', 'Hire Date', 'Address', 'City'];
   const infoRightTitles = ['Postal Code', 'Country', 'Home Phone', 'Extension', 'Notes', 'Reports To'];
@@ -36,7 +34,7 @@ const EmployeesInfo = () => {
       hire_date: employee?.hire_date,
       address: employee?.address,
       city: employee?.city,
-    }
+    };
   };
 
   const rightData = () => {
@@ -47,12 +45,12 @@ const EmployeesInfo = () => {
       extension: employee?.extension,
       notes: employee?.notes,
       report_full_name: employee?.report_full_name,
-    }
+    };
   };
 
   const onButtonClick = () => {
-    nav(Path.Employees)
-  }
+    nav(Path.Employees);
+  };
 
   const goTo = (index: number) => {
     if (index === 5) {
@@ -80,7 +78,7 @@ const EmployeesInfo = () => {
                         <InfoTitle>{title}</InfoTitle>
                         <InfoValue>{value}</InfoValue>
                       </Info>
-                    )
+                    );
                   })}
               </LeftWrap>
               <RightWrap>
@@ -88,7 +86,7 @@ const EmployeesInfo = () => {
                   infoRightTitles.map((title, index: number) => {
                     const value: any = Object.values(rightData())[index];
                     if (value === null || value === ' ') {
-                      title = ''
+                      title = '';
                     }
                     return (
                       <Info key={index}>
@@ -100,7 +98,7 @@ const EmployeesInfo = () => {
                           {value}
                         </InfoValue>
                       </Info>
-                    )
+                    );
                   })}
               </RightWrap>
             </InfoWrap>
@@ -140,7 +138,7 @@ const Title = styled.div`
 const InfoWrap = styled.div`
   padding: 24px;
   display: grid;
-  grid-template-columns: repeat(2,minmax(0,1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
   border-bottom: 1px solid #e5e7eb;
 `;
@@ -165,8 +163,8 @@ const InfoTitle = styled.div`
 
 const InfoValue = styled.div<{ isColored?: boolean }>`
   line-height: 1.5rem;
-  color: ${({isColored}) => isColored && 'rgb(37 99 235)'};
-  cursor: ${({isColored}) => isColored && 'pointer'};
+  color: ${({ isColored }) => isColored && 'rgb(37 99 235)'};
+  cursor: ${({ isColored }) => isColored && 'pointer'};
   user-select: text;
 `;
 
@@ -186,7 +184,7 @@ const Button = styled.button`
   border-radius: 0.25rem;
   cursor: pointer;
   padding: 8px 16px;
-  
+
   &:hover {
     background-color: rgb(220 38 38);
   }

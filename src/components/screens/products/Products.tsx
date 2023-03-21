@@ -17,17 +17,15 @@ const Products = () => {
   const state = useSelector(selectState);
 
   useEffect(() => {
-    if (!products) {
-      dispatch(getProducts());
-    }
-  }, [])
+    dispatch(getProducts());
+  }, []);
 
 
   const tableData = products?.map((obj) => {
     const array = ['category_id', 'discontinued', 'product_id', 'reorder_level', 'supplier_id', 'supplier_name'];
-    const object = {...obj};
+    const object = { ...obj };
     const data = deleteKeys(object, array);
-    object.unit_price = `$${object.unit_price}`
+    object.unit_price = `$${object.unit_price}`;
     return data;
   });
 
@@ -71,7 +69,7 @@ const Products = () => {
                         </TD>
                       ))}
                     </TR>
-                  )
+                  );
                 })}
               </TBody>
             </TableComponent>
@@ -114,6 +112,7 @@ const THead = styled.thead`
   & > tr:nth-child(odd) {
     background-color: #fff;
   }
+
   & > tr:nth-child(odd):hover {
     background-color: #fff;
   }
@@ -123,10 +122,12 @@ const TR = styled.tr`
   &:hover {
     background-color: rgb(243 244 246);
   }
-  &:nth-child(odd){
+
+  &:nth-child(odd) {
     background-color: rgb(249 250 251)
   }
-  &:nth-child(odd):hover{
+
+  &:nth-child(odd):hover {
     background-color: rgb(243 244 246);
   }
 `;
@@ -143,8 +144,8 @@ const TBody = styled.tbody``;
 const TD = styled.td<{ isColored: boolean }>`
   padding: 8px 12px;
   height: 40px;
-  color: ${({isColored}) => isColored && 'rgb(37 99 235)'};
-  cursor: ${({isColored}) => isColored && 'pointer'};
+  color: ${({ isColored }) => isColored && 'rgb(37 99 235)'};
+  cursor: ${({ isColored }) => isColored && 'pointer'};
   user-select: text;
 `;
 

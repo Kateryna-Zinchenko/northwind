@@ -33,10 +33,8 @@ const Employees = () => {
   }, [employees]);
 
   useEffect(() => {
-    if (!employees) {
-      dispatch(getEmployees());
-    }
-  }, [])
+    dispatch(getEmployees());
+  }, []);
 
   const tableData = employees?.map((obj) => {
     return {
@@ -44,7 +42,7 @@ const Employees = () => {
       title: obj.title,
       city: obj.city,
       home_phone: obj.home_phone,
-      country: obj.country
+      country: obj.country,
     };
   });
 
@@ -54,7 +52,7 @@ const Employees = () => {
     }
   };
 
-  const randomColor = Math.floor(Math.random()*16777215).toString(16);
+  const randomColor = Math.floor(Math.random() * 16777215).toString(16);
 
   console.log(employees);
   return (
@@ -80,8 +78,8 @@ const Employees = () => {
               </THead>
               <TBody>
                 {tableData && tableData.map((obj, index: number) => {
-                  const firstLetter = obj.full_name.split(' ')[0][0]
-                  const secondLetter = obj.full_name.split(' ')[1][0]
+                  const firstLetter = obj.full_name.split(' ')[0][0];
+                  const secondLetter = obj.full_name.split(' ')[1][0];
                   return (
                     <TR key={index}>
                       <TDAvatar>
@@ -96,7 +94,7 @@ const Employees = () => {
                         </TD>
                       ))}
                     </TR>
-                  )
+                  );
                 })}
               </TBody>
             </TableComponent>
@@ -139,6 +137,7 @@ const THead = styled.thead`
   & > tr:nth-child(odd) {
     background-color: #fff;
   }
+
   & > tr:nth-child(odd):hover {
     background-color: #fff;
   }
@@ -148,10 +147,12 @@ const TR = styled.tr`
   &:hover {
     background-color: rgb(243 244 246);
   }
-  &:nth-child(odd){
+
+  &:nth-child(odd) {
     background-color: rgb(249 250 251)
   }
-  &:nth-child(odd):hover{
+
+  &:nth-child(odd):hover {
     background-color: rgb(243 244 246);
   }
 `;
@@ -174,8 +175,8 @@ const TDAvatar = styled.td`
 const TD = styled.td<{ isColored: boolean }>`
   padding: 8px 12px;
   height: 40px;
-  color: ${({isColored}) => isColored && 'rgb(37 99 235)'};
-  cursor: ${({isColored}) => isColored && 'pointer'};
+  color: ${({ isColored }) => isColored && 'rgb(37 99 235)'};
+  cursor: ${({ isColored }) => isColored && 'pointer'};
   user-select: text;
 `;
 

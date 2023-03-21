@@ -18,10 +18,8 @@ const CustomersInfo = () => {
   const id = useParams().id;
 
   useEffect(() => {
-    if (!customer) {
-      dispatch(getCustomerInfo(id!));
-    }
-  }, [])
+    dispatch(getCustomerInfo(id!));
+  }, []);
 
   const infoLeftTitles = ['Company Name', 'Contact Name', 'Contact Title', 'Address', 'City'];
   const infoRightTitles = ['Postal Code', 'Region', 'Country', 'Phone', 'Fax'];
@@ -33,7 +31,7 @@ const CustomersInfo = () => {
       contact_title: customer?.contact_title,
       address: customer?.address,
       city: customer?.city,
-    }
+    };
   };
 
   const rightData = () => {
@@ -43,12 +41,12 @@ const CustomersInfo = () => {
       country: customer?.country,
       phone: customer?.phone,
       fax: customer?.fax,
-    }
+    };
   };
 
   const onButtonClick = () => {
-    nav(Path.Customers)
-  }
+    nav(Path.Customers);
+  };
 
   return (
     <Wrapper>
@@ -69,7 +67,7 @@ const CustomersInfo = () => {
                         <InfoTitle>{title}</InfoTitle>
                         <InfoValue>{value}</InfoValue>
                       </Info>
-                    )
+                    );
                   })}
               </LeftWrap>
               <RightWrap>
@@ -77,14 +75,14 @@ const CustomersInfo = () => {
                   infoRightTitles.map((title, index: number) => {
                     const value: any = Object.values(rightData())[index];
                     if (value === null || value === ' ') {
-                      title = ''
+                      title = '';
                     }
                     return (
                       <Info key={index}>
                         <InfoTitle>{title}</InfoTitle>
                         <InfoValue>{value}</InfoValue>
                       </Info>
-                    )
+                    );
                   })}
               </RightWrap>
             </InfoWrap>
@@ -124,7 +122,7 @@ const Title = styled.div`
 const InfoWrap = styled.div`
   padding: 24px;
   display: grid;
-  grid-template-columns: repeat(2,minmax(0,1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
   border-bottom: 1px solid #e5e7eb;
 `;
@@ -168,7 +166,7 @@ const Button = styled.button`
   border-radius: 0.25rem;
   cursor: pointer;
   padding: 8px 16px;
-  
+
   &:hover {
     background-color: rgb(220 38 38);
   }

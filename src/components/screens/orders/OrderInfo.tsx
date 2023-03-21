@@ -24,12 +24,8 @@ const OrderInfo = () => {
   });
 
   useEffect(() => {
-    if (!order) {
-      dispatch(getOrderInfo(id));
-    }
-    if (!productsInOrder) {
-      dispatch(getOrderProducts(id));
-    }
+    dispatch(getOrderInfo(id));
+    dispatch(getOrderProducts(id));
   }, []);
 
   const infoLeftTitles = ['Customer Id', 'Ship Name', 'Total Products', 'Total Quantity', 'Total Price', 'Total Discount', 'Ship Via', 'Freight'];

@@ -1,35 +1,55 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { selectStats } from '../../../store/selectors/user';
+import { selectLog, selectMetrics } from '../../../store/selectors/user';
+import { AppDispatch } from '../../../App';
+import { getMetrics } from '../../../store/actions/user';
+import { State } from '../../../store';
 
 const Dashboard = () => {
-  const stats = useSelector(selectStats);
+  const dispatch = useDispatch<AppDispatch>();
+
+  const log = useSelector(selectLog);
+  const metrics = useSelector(selectMetrics);
+
+  const queries = useSelector((state: State) => state.userReducer.queries)
+  const results = useSelector((state: State) => state.userReducer.results)
+  const select = useSelector((state: State) => state.userReducer.select)
+  const selectWhere = useSelector((state: State) => state.userReducer.selectWhere)
+  const selectLeftJoin = useSelector((state: State) => state.userReducer.selectLeftJoin)
+
+  useEffect(() => {
+    dispatch(getMetrics());
+  }, [])
 
   return (
     <MainWrapper>
       <Metrics>
         <Div>
           <Title>Worker</Title>
-          <Paragraph>Colo: </Paragraph>
-          <Paragraph>Country: </Paragraph>
+          <Paragraph>Colo: {metrics?.colo}</Paragraph>
+          <Paragraph>Country: {metrics?.country}</Paragraph>
         </Div>
         <Div>
           <Title>SQL Metrics</Title>
-          <Paragraph>Query count:</Paragraph>
-          <Paragraph>Results count:</Paragraph>
-          <Paragraph># SELECT:</Paragraph>
-          <Paragraph># SELECT WHERE:</Paragraph>
-          <Paragraph># SELECT LEFT JOIN:</Paragraph>
+          <Paragraph>Query count: {queries}</Paragraph>
+          <Paragraph>Results count: {results}</Paragraph>
+          <Paragraph># SELECT: {select}</Paragraph>
+          <Paragraph># SELECT WHERE: {selectWhere}</Paragraph>
+          <Paragraph># SELECT LEFT JOIN: {selectLeftJoin}</Paragraph>
         </Div>
       </Metrics>
       <WrapLog>
         <Title>Activity log</Title>
         <ParagraphLog>Explore the app and see metrics here</ParagraphLog>
-        <Div>
-          <Info>2023-03-17T22:21:24.092Z, SinglePrimary-cf5c58b0-e2c3-46e2-b128-37eecde77a08.db3, 3.781124999979511ms</Info>
-          <Log>SELECT COUNT(1) as total FROM Supplier</Log>
-        </Div>
+        {
+          log && log.map((obj: any, index: number) => (
+            <Div key={index}>
+              <Info>{obj.duration}</Info>
+              <Log>{obj.query}</Log>
+            </Div>
+          ))
+        }
       </WrapLog>
     </MainWrapper>
   );

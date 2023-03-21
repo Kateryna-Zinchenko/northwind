@@ -1,5 +1,5 @@
 import { createReducerFunction, ImmerReducer } from 'immer-reducer';
-import { ICustomer, IEmployee, IOrder, IProduct, IStats, ISupplier, RequestState } from './common';
+import { ICustomer, IEmployee, IMetrics, IOrder, IProduct, IStats, ISupplier, RequestState } from './common';
 
 interface UserState {
   suppliers: ISupplier[] | null,
@@ -16,8 +16,15 @@ interface UserState {
   searchResults: ICustomer[] | null,
   searchCategory: string | null,
   searchError: string | null,
-  stats: IStats[] | [],
+  log: any,
   state: RequestState,
+  metrics: IMetrics | null,
+  queries: number,
+  results: number,
+  select: number,
+  selectWhere: number,
+  selectLeftJoin: number,
+  //log: string
 }
 
 const initialState: UserState = {
@@ -35,8 +42,15 @@ const initialState: UserState = {
   searchResults: null,
   searchCategory: null,
   searchError: null,
-  stats: [],
+  log: [],
   state: RequestState.IDLE,
+  metrics: null,
+  queries: 0,
+  results: 0,
+  select: 0,
+  selectWhere: 0,
+  selectLeftJoin: 0,
+  //log: '',
 };
 
 export class User extends ImmerReducer<UserState> {
@@ -92,12 +106,38 @@ export class User extends ImmerReducer<UserState> {
     this.draftState.searchCategory = searchCategory;
   }
 
-  setStats(stats: IStats) {
-    this.draftState.stats = [...this.draftState.stats, stats];
-  }
-
   setState(state: RequestState) {
     this.draftState.state = state;
+  }
+
+  setMetrics(metrics: IMetrics) {
+    this.draftState.metrics = metrics;
+  }
+
+  setLog(log: any) {
+    this.draftState.log = this.draftState.log.concat(log);
+  }
+
+  setQueries(queries: number) {
+    this.draftState.queries = this.draftState.queries + queries;
+  }
+
+  setResults(results: number) {
+    this.draftState.results = Number(this.draftState.results) + Number(results);
+  }
+
+  setSelect(select: number) {
+    this.draftState.select = this.draftState.select + select;
+  }
+
+  setSelectWhere(selectWhere: number) {
+    if (typeof selectWhere !== 'undefined')
+    this.draftState.selectWhere = this.draftState.selectWhere + selectWhere;
+  }
+
+  setSelectLeftJoin(selectLeftJoin: number) {
+    if (typeof selectLeftJoin !== 'undefined')
+      this.draftState.selectLeftJoin = this.draftState.selectLeftJoin + selectLeftJoin;
   }
 }
 

@@ -18,10 +18,8 @@ const SupplierInfo = () => {
   const id = Number(useParams().id);
 
   useEffect(() => {
-    if (!supplier) {
-      dispatch(getSupplierInfo(id));
-    }
-  }, [])
+    dispatch(getSupplierInfo(id));
+  }, []);
 
   const infoLeftTitles = ['Company Name', 'Contact Name', 'Contact Title', 'Address', 'City'];
   const infoRightTitles = ['Region', 'Postal Code', 'Country', 'Phone', 'Fax', 'Home Page'];
@@ -32,7 +30,7 @@ const SupplierInfo = () => {
       contact_name: supplier?.contact_name,
       contact_title: supplier?.contact_title,
       address: supplier?.address,
-      city: supplier?.city
+      city: supplier?.city,
     };
   };
 
@@ -43,13 +41,13 @@ const SupplierInfo = () => {
       country: supplier?.country,
       phone: supplier?.phone,
       fax: supplier?.fax,
-      homepage: supplier?.homepage
+      homepage: supplier?.homepage,
     };
   };
 
   const onButtonClick = () => {
-    nav(Path.Suppliers)
-  }
+    nav(Path.Suppliers);
+  };
 
   return (
     <Wrapper>
@@ -70,7 +68,7 @@ const SupplierInfo = () => {
                         <InfoTitle>{title}</InfoTitle>
                         <InfoValue>{value}</InfoValue>
                       </Info>
-                    )
+                    );
                   })}
               </LeftWrap>
               <RightWrap>
@@ -78,14 +76,14 @@ const SupplierInfo = () => {
                   infoRightTitles.map((title, index: number) => {
                     const value: any = Object.values(rightData())[index];
                     if (value == null) {
-                      title = ''
+                      title = '';
                     }
                     return (
                       <Info key={index}>
                         <InfoTitle>{title}</InfoTitle>
                         <InfoValue>{value}</InfoValue>
                       </Info>
-                    )
+                    );
                   })}
               </RightWrap>
             </InfoWrap>
@@ -125,7 +123,7 @@ const Title = styled.div`
 const InfoWrap = styled.div`
   padding: 24px;
   display: grid;
-  grid-template-columns: repeat(2,minmax(0,1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
   border-bottom: 1px solid #e5e7eb;
 `;
@@ -169,7 +167,7 @@ const Button = styled.button`
   border-radius: 0.25rem;
   cursor: pointer;
   padding: 8px 16px;
-  
+
   &:hover {
     background-color: rgb(220 38 38);
   }

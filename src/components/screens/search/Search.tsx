@@ -32,10 +32,6 @@ const Search = () => {
     }
   });
 
-  useEffect(() => {
-    dispatch(userActions.setSearchResults(null));
-  }, []);
-
   const onRadioButClick = (e: any) => {
     setValue(e.target.value);
     if (e.target.value === SearchGroup.Products) {
@@ -112,7 +108,7 @@ const Search = () => {
               {
                 searchResults && searchCategory === SearchGroup.Products && searchResults.map((obj: any, index: number) => (
                   <Products key={index}>
-                    <ProductName onClick={() => goTo(id[index])}>{obj.product_name}</ProductName>
+                    <ProductName onClick={() => {if (typeof id !== 'undefined') goTo(id[index])}}>{obj.product_name}</ProductName>
                     <ProductInfo>#{index + 1}, Quantity Per Unit: {obj.quantity_per_unit},
                       Price: {obj.unit_price}, Stock: {obj.units_in_stock}</ProductInfo>
                   </Products>
@@ -121,7 +117,7 @@ const Search = () => {
               {
                 searchResults && searchCategory === SearchGroup.Customers && searchResults.map((obj: any, index: number) => (
                   <Products key={index}>
-                    <ProductName onClick={() => goTo(id[index])}>{obj.company_name}</ProductName>
+                    <ProductName onClick={() => {if (typeof id !== 'undefined') goTo(id[index])}}>{obj.company_name}</ProductName>
                     <ProductInfo>#{index + 1}, Contact: {obj.contact_name},
                       Title: {obj.contact_title}, Phone: {obj.phone}</ProductInfo>
                   </Products>

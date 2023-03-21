@@ -17,26 +17,24 @@ const Orders = () => {
   const state = useSelector(selectState);
 
   useEffect(() => {
-    if (!orders) {
-      dispatch(getOrders());
-    }
-  }, [])
+    dispatch(getOrders());
+  }, []);
 
   const tableData = orders?.map((obj) => {
     return {
       order_id: obj.order_id,
-      total_products_price: price(`${Math.round(obj.total_products_price*100)/100}`),
+      total_products_price: price(`${Math.round(obj.total_products_price * 100) / 100}`),
       total_products: obj.total_products,
       total_products_items: obj.total_products_items,
       shipped_date: date(obj.shipped_date),
       ship_name: obj.ship_name,
       ship_city: obj.ship_city,
-      ship_country: obj.ship_country
-    }
+      ship_country: obj.ship_country,
+    };
   });
 
   const id = orders?.map((obj) => {
-    return obj.order_id
+    return obj.order_id;
   });
 
   const goTo = (id: number, index: number) => {
@@ -82,7 +80,7 @@ const Orders = () => {
                         </TD>
                       ))}
                     </TR>
-                  )
+                  );
                 })}
               </TBody>
             </TableComponent>
@@ -125,6 +123,7 @@ const THead = styled.thead`
   & > tr:nth-child(odd) {
     background-color: #fff;
   }
+
   & > tr:nth-child(odd):hover {
     background-color: #fff;
   }
@@ -134,10 +133,12 @@ const TR = styled.tr`
   &:hover {
     background-color: rgb(243 244 246);
   }
-  &:nth-child(odd){
+
+  &:nth-child(odd) {
     background-color: rgb(249 250 251)
   }
-  &:nth-child(odd):hover{
+
+  &:nth-child(odd):hover {
     background-color: rgb(243 244 246);
   }
 `;
@@ -154,8 +155,8 @@ const TBody = styled.tbody``;
 const TD = styled.td<{ isColored: boolean }>`
   padding: 8px 12px;
   height: 40px;
-  color: ${({isColored}) => isColored && 'rgb(37 99 235)'};
-  cursor: ${({isColored}) => isColored && 'pointer'};
+  color: ${({ isColored }) => isColored && 'rgb(37 99 235)'};
+  cursor: ${({ isColored }) => isColored && 'pointer'};
   user-select: text;
 `;
 
