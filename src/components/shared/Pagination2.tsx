@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { usePagination, DOTS } from './usePagination';
 
-const Pagination = ({ props }: any) => {
+const Pagination = (props: any) => {
   const {
     onPageChange,
     totalCount,
